@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FormEvent, ReactNode, useState } from "react";
 
 type Finding = {
@@ -128,6 +129,38 @@ export function Checker() {
           margin: "0 auto"
         }}
       >
+        <header
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginBottom: 32
+          }}
+        >
+          <a
+            href="https://itcservice.co.uk"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Visit ITC Service"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              padding: "8px 14px",
+              background: "#1c1c1c",
+              border: "1px solid rgba(226, 5, 18, 0.24)"
+            }}
+          >
+            <Image
+              src="/itc-service-logo.webp"
+              alt="ITC Service logo"
+              width={124}
+              height={56}
+              priority
+              style={{ width: "124px", height: "auto", display: "block" }}
+            />
+          </a>
+        </header>
+
         <section
           style={{
             display: "grid",
