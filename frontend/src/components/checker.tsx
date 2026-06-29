@@ -155,7 +155,8 @@ export function Checker() {
                 lineHeight: 0.95,
                 margin: "18px 0 18px",
                 fontFamily: "var(--title-font)",
-                letterSpacing: "-0.04em"
+                letterSpacing: "-0.04em",
+                fontWeight: 700
               }}
             >
               Make sender trust visible before it becomes a delivery problem.
@@ -181,7 +182,7 @@ export function Checker() {
               background: "var(--panel)",
               border: "1px solid var(--border)",
               boxShadow: "var(--shadow)",
-              borderRadius: 28,
+              borderRadius: 0,
               padding: 24,
               backdropFilter: "blur(14px)"
             }}
@@ -214,10 +215,10 @@ export function Checker() {
                 style={{
                   marginTop: 8,
                   border: 0,
-                  borderRadius: 999,
+                  borderRadius: 0,
                   padding: "14px 18px",
                   background: "var(--accent)",
-                  color: "#07101d",
+                  color: "#ffffff",
                   fontWeight: 700,
                   cursor: loading ? "progress" : "pointer"
                 }}
@@ -593,7 +594,7 @@ const panelStyle: React.CSSProperties = {
   background: "var(--panel-strong)",
   border: "1px solid var(--border)",
   boxShadow: "var(--shadow)",
-  borderRadius: 24,
+  borderRadius: 0,
   padding: 24,
   backdropFilter: "blur(12px)"
 };
@@ -616,18 +617,18 @@ const subheadingStyle: React.CSSProperties = {
 
 const inputStyle: React.CSSProperties = {
   width: "100%",
-  borderRadius: 16,
+  borderRadius: 0,
   border: "1px solid var(--border)",
   padding: "14px 16px",
-  background: "rgba(255,255,255,0.04)",
+  background: "rgba(255,255,255,0.92)",
   color: "var(--text)"
 };
 
 const recordBoxStyle: React.CSSProperties = {
   padding: "14px 16px",
-  borderRadius: 16,
-  background: "rgba(255,255,255,0.03)",
-  border: "1px solid rgba(126, 172, 255, 0.14)",
+  borderRadius: 0,
+  background: "rgba(28, 28, 28, 0.03)",
+  border: "1px solid rgba(28, 28, 28, 0.12)",
   color: "var(--muted)",
   lineHeight: 1.6,
   wordBreak: "break-word"
@@ -643,9 +644,9 @@ const chipStyle: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   padding: "7px 10px",
-  borderRadius: 999,
+  borderRadius: 0,
   background: "var(--accent-soft)",
-  border: "1px solid rgba(34, 184, 207, 0.22)",
+  border: "1px solid rgba(226, 5, 18, 0.18)",
   color: "var(--text)",
   fontSize: 13
 };
