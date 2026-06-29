@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, ReactNode, useState } from "react";
 
 type Finding = {
   severity: "info" | "warning" | "error";
@@ -14,13 +14,48 @@ type RecordSet = {
   values: string[];
 };
 
+type SpfData = {
+  host: string;
+  record: string | null;
+  lookup_count_estimate: number;
+  includes: string[];
+  redirect: string | null;
+  all_qualifier: string | null;
+  mechanisms: string[];
+  issues: string[];
+  valid: boolean;
+};
+
+type DkimData = {
+  host: string;
+  record: string | null;
+  key_size_bits: number | null;
+  tags: Record<string, string>;
+  key_type: string | null;
+  hash_algorithms: string[];
+  valid: boolean;
+};
+
+type DmarcData = {
+  host: string;
+  record: string | null;
+  tags: Record<string, string>;
+  policy: string | null;
+  subdomain_policy: string | null;
+  alignment_dkim: string | null;
+  alignment_spf: string | null;
+  pct: number | null;
+  aggregate_reporting_enabled: boolean;
+  valid: boolean;
+};
+
 type ResponseData = {
   domain: string;
   nameservers: RecordSet;
   mx: RecordSet;
-  spf: { host: string; record: string | null; lookup_count_estimate: number };
-  dkim: { host: string; record: string | null; key_size_bits: number | null };
-  dmarc: { host: string; record: string | null; tags: Record<string, string> };
+  spf: SpfData;
+  dkim: DkimData;
+  dmarc: DmarcData;
   findings: Finding[];
 };
 
@@ -30,6 +65,12 @@ function severityColor(severity: Finding["severity"]) {
   if (severity === "error") return "var(--error)";
   if (severity === "warning") return "var(--warn)";
   return "var(--ok)";
+}
+
+function statusTone(valid: boolean, hasRecord: boolean) {
+  if (!hasRecord) return { label: "Missing", color: "var(--error)" };
+  if (valid) return { label: "Healthy", color: "var(--ok)" };
+  return { label: "Needs review", color: "var(--warn)" };
 }
 
 export function Checker() {
@@ -195,12 +236,14 @@ export function Checker() {
 
         {result ? (
           <section style={{ marginTop: 28, display: "grid", gap: 18 }}>
+            <OverviewRow result={result} />
+
             <div style={panelStyle}>
               <h2 style={headingStyle}>Findings</h2>
               <div style={{ display: "grid", gap: 12 }}>
-                {result.findings.map((finding) => (
+                {result.findings.map((finding, index) => (
                   <div
-                    key={finding.code}
+                    key={`${finding.code}-${index}`}
                     style={{
                       borderLeft: `4px solid ${severityColor(finding.severity)}`,
                       paddingLeft: 14
@@ -217,12 +260,114 @@ export function Checker() {
               style={{
                 display: "grid",
                 gap: 18,
-                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))"
+                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))"
               }}
             >
-              <ResultCard title="SPF" body={result.spf.record ?? "No SPF record found."} />
-              <ResultCard title="DKIM" body={result.dkim.record ?? "No DKIM record found for this selector."} />
-              <ResultCard title="DMARC" body={result.dmarc.record ?? "No DMARC record found."} />
+              <ProtocolCard
+                title="SPF"
+                tone={statusTone(result.spf.valid, Boolean(result.spf.record))}
+                record={result.spf.record}
+                sections={[
+                  {
+                    label: "Lookup estimate",
+                    value: `${result.spf.lookup_count_estimate} / 10`
+                  },
+                  {
+                    label: "Policy ending",
+                    value: result.spf.all_qualifier
+                      ? describeSpfAll(result.spf.all_qualifier)
+                      : "No all mechanism"
+                  },
+                  {
+                    label: "Redirect",
+                    value: result.spf.redirect ?? "None"
+                  }
+                ]}
+                listSections={[
+                  {
+                    title: "Includes",
+                    items: result.spf.includes
+                  },
+                  {
+                    title: "Mechanisms",
+                    items: result.spf.mechanisms
+                  },
+                  {
+                    title: "Issues",
+                    items: result.spf.issues
+                  }
+                ]}
+              />
+
+              <ProtocolCard
+                title="DKIM"
+                tone={statusTone(result.dkim.valid, Boolean(result.dkim.record))}
+                record={result.dkim.record}
+                sections={[
+                  {
+                    label: "Selector host",
+                    value: result.dkim.host
+                  },
+                  {
+                    label: "Key type",
+                    value: result.dkim.key_type ?? "Unknown"
+                  },
+                  {
+                    label: "Estimated key size",
+                    value: result.dkim.key_size_bits
+                      ? `${result.dkim.key_size_bits} bits`
+                      : "Unknown"
+                  }
+                ]}
+                listSections={[
+                  {
+                    title: "Hash algorithms",
+                    items: result.dkim.hash_algorithms
+                  },
+                  {
+                    title: "Record tags",
+                    items: Object.entries(result.dkim.tags).map(([key, value]) => `${key}=${value}`)
+                  }
+                ]}
+              />
+
+              <ProtocolCard
+                title="DMARC"
+                tone={statusTone(result.dmarc.valid, Boolean(result.dmarc.record))}
+                record={result.dmarc.record}
+                sections={[
+                  {
+                    label: "Policy",
+                    value: result.dmarc.policy ?? "Missing"
+                  },
+                  {
+                    label: "DKIM alignment",
+                    value: describeAlignment(result.dmarc.alignment_dkim)
+                  },
+                  {
+                    label: "SPF alignment",
+                    value: describeAlignment(result.dmarc.alignment_spf)
+                  },
+                  {
+                    label: "Subdomain policy",
+                    value: result.dmarc.subdomain_policy ?? "Inherit main policy"
+                  },
+                  {
+                    label: "Sampling",
+                    value: result.dmarc.pct !== null ? `${result.dmarc.pct}%` : "100% default"
+                  },
+                  {
+                    label: "Aggregate reports",
+                    value: result.dmarc.aggregate_reporting_enabled ? "Enabled" : "Not configured"
+                  }
+                ]}
+                listSections={[
+                  {
+                    title: "Record tags",
+                    items: Object.entries(result.dmarc.tags).map(([key, value]) => `${key}=${value}`)
+                  }
+                ]}
+              />
             </div>
 
             <div
@@ -232,19 +377,20 @@ export function Checker() {
                 gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))"
               }}
             >
-              <ResultCard
+              <SimpleCard
                 title="Nameservers"
-                body={result.nameservers.values.length ? result.nameservers.values.join("\n") : "No nameservers returned."}
+                body={
+                  result.nameservers.values.length
+                    ? result.nameservers.values.join("\n")
+                    : "No nameservers returned."
+                }
                 preformatted
               />
-              <ResultCard
+              <SimpleCard
                 title="MX"
-                body={result.mx.values.length ? result.mx.values.join("\n") : "No MX records returned."}
-                preformatted
-              />
-              <ResultCard
-                title="Selector Host"
-                body={`${result.dkim.host}\n\nEstimated key size: ${result.dkim.key_size_bits ?? "unknown"} bits`}
+                body={
+                  result.mx.values.length ? result.mx.values.join("\n") : "No MX records returned."
+                }
                 preformatted
               />
             </div>
@@ -255,7 +401,151 @@ export function Checker() {
   );
 }
 
-function ResultCard({
+function OverviewRow({ result }: { result: ResponseData }) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gap: 18,
+        gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))"
+      }}
+    >
+      <OverviewCard
+        title="SPF"
+        value={result.spf.record ? "Record found" : "Missing"}
+        detail={`${result.spf.lookup_count_estimate} lookup-style mechanisms`}
+        color={statusTone(result.spf.valid, Boolean(result.spf.record)).color}
+      />
+      <OverviewCard
+        title="DKIM"
+        value={result.dkim.valid ? "Selector healthy" : result.dkim.record ? "Needs review" : "Missing"}
+        detail={result.dkim.key_size_bits ? `${result.dkim.key_size_bits} bit key estimate` : "Key size unknown"}
+        color={statusTone(result.dkim.valid, Boolean(result.dkim.record)).color}
+      />
+      <OverviewCard
+        title="DMARC"
+        value={result.dmarc.policy ? `Policy: ${result.dmarc.policy}` : "Missing"}
+        detail={
+          result.dmarc.aggregate_reporting_enabled
+            ? "Aggregate reports enabled"
+            : "No aggregate reporting"
+        }
+        color={statusTone(result.dmarc.valid, Boolean(result.dmarc.record)).color}
+      />
+    </div>
+  );
+}
+
+function OverviewCard({
+  title,
+  value,
+  detail,
+  color
+}: {
+  title: string;
+  value: string;
+  detail: string;
+  color: string;
+}) {
+  return (
+    <article style={panelStyle}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+        <h2 style={headingStyle}>{title}</h2>
+        <span
+          style={{
+            color,
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase"
+          }}
+        >
+          {title}
+        </span>
+      </div>
+      <div style={{ fontSize: 24, lineHeight: 1.15 }}>{value}</div>
+      <p style={{ color: "var(--muted)", marginBottom: 0 }}>{detail}</p>
+    </article>
+  );
+}
+
+function ProtocolCard({
+  title,
+  tone,
+  record,
+  sections,
+  listSections
+}: {
+  title: string;
+  tone: { label: string; color: string };
+  record: string | null;
+  sections: Array<{ label: string; value: string }>;
+  listSections: Array<{ title: string; items: string[] }>;
+}) {
+  return (
+    <article style={panelStyle}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+        <h2 style={headingStyle}>{title}</h2>
+        <span
+          style={{
+            color: tone.color,
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase"
+          }}
+        >
+          {tone.label}
+        </span>
+      </div>
+
+      <div style={recordBoxStyle}>{record ?? `No ${title} record found.`}</div>
+
+      <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+        {sections.map((section) => (
+          <MetricRow key={`${title}-${section.label}`} label={section.label}>
+            {section.value}
+          </MetricRow>
+        ))}
+      </div>
+
+      <div style={{ display: "grid", gap: 16, marginTop: 18 }}>
+        {listSections
+          .filter((section) => section.items.length > 0)
+          .map((section) => (
+            <div key={`${title}-${section.title}`}>
+              <h3 style={subheadingStyle}>{section.title}</h3>
+              <div style={chipWrapStyle}>
+                {section.items.map((item) => (
+                  <span key={`${title}-${section.title}-${item}`} style={chipStyle}>
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+          ))}
+      </div>
+    </article>
+  );
+}
+
+function MetricRow({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "minmax(0, 0.9fr) minmax(0, 1.1fr)",
+        gap: 12,
+        alignItems: "start"
+      }}
+    >
+      <div style={{ color: "var(--muted)" }}>{label}</div>
+      <div style={{ wordBreak: "break-word" }}>{children}</div>
+    </div>
+  );
+}
+
+function SimpleCard({
   title,
   body,
   preformatted = false
@@ -281,6 +571,19 @@ function ResultCard({
   );
 }
 
+function describeSpfAll(qualifier: string) {
+  if (qualifier === "-") return "Hard fail (-all)";
+  if (qualifier === "~") return "Soft fail (~all)";
+  if (qualifier === "?") return "Neutral (?all)";
+  return "Allow all (+all)";
+}
+
+function describeAlignment(value: string | null) {
+  if (value === "s") return "Strict";
+  if (value === "r") return "Relaxed";
+  return "Unknown";
+}
+
 const panelStyle: React.CSSProperties = {
   background: "var(--panel-strong)",
   border: "1px solid var(--border)",
@@ -295,10 +598,46 @@ const headingStyle: React.CSSProperties = {
   fontSize: 20
 };
 
+const subheadingStyle: React.CSSProperties = {
+  marginTop: 0,
+  marginBottom: 8,
+  fontSize: 13,
+  textTransform: "uppercase",
+  letterSpacing: "0.06em",
+  color: "var(--muted)"
+};
+
 const inputStyle: React.CSSProperties = {
   width: "100%",
   borderRadius: 16,
   border: "1px solid var(--border)",
   padding: "14px 16px",
   background: "rgba(255,255,255,0.7)"
+};
+
+const recordBoxStyle: React.CSSProperties = {
+  padding: "14px 16px",
+  borderRadius: 16,
+  background: "rgba(242, 236, 227, 0.9)",
+  border: "1px solid rgba(31, 31, 25, 0.08)",
+  color: "var(--muted)",
+  lineHeight: 1.6,
+  wordBreak: "break-word"
+};
+
+const chipWrapStyle: React.CSSProperties = {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: 8
+};
+
+const chipStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  padding: "7px 10px",
+  borderRadius: 999,
+  background: "rgba(178, 76, 44, 0.09)",
+  border: "1px solid rgba(178, 76, 44, 0.14)",
+  color: "var(--text)",
+  fontSize: 13
 };
