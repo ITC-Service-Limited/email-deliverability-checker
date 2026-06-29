@@ -1,0 +1,42 @@
+:root {
+  --background: #f5f0e8;
+  --panel: rgba(255, 255, 255, 0.86);
+  --panel-strong: #ffffff;
+  --text: #1f1f19;
+  --muted: #6d675d;
+  --border: rgba(31, 31, 25, 0.12);
+  --accent: #b24c2c;
+  --accent-soft: #f1c6ab;
+  --ok: #24704d;
+  --warn: #a15c00;
+  --error: #9f2d2d;
+  --shadow: 0 30px 80px rgba(65, 40, 24, 0.13);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-family: Georgia, "Times New Roman", serif;
+  background:
+    radial-gradient(circle at top left, rgba(178, 76, 44, 0.16), transparent 30%),
+    radial-gradient(circle at top right, rgba(36, 112, 77, 0.12), transparent 24%),
+    linear-gradient(180deg, #f3ede2 0%, #f8f3eb 48%, #efe5d8 100%);
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input {
+  font: inherit;
+}
