@@ -143,7 +143,8 @@ export function Checker() {
                 color: "var(--accent)",
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                fontSize: 12
+                fontSize: 12,
+                fontWeight: 700
               }}
             >
               GitHub-first • Railway-ready • HubSpot-compatible
@@ -152,10 +153,12 @@ export function Checker() {
               style={{
                 fontSize: "clamp(2.8rem, 8vw, 5.4rem)",
                 lineHeight: 0.95,
-                margin: "18px 0 18px"
+                margin: "18px 0 18px",
+                fontFamily: "var(--title-font)",
+                letterSpacing: "-0.04em"
               }}
             >
-              Check the parts that actually shape email trust.
+              Make sender trust visible before it becomes a delivery problem.
             </h1>
             <p
               style={{
@@ -167,7 +170,8 @@ export function Checker() {
               }}
             >
               Run live SPF, DKIM, DMARC, MX, and nameserver checks from a single screen,
-              with the checking engine exposed through an API that can later power a HubSpot app.
+              then inspect the details that explain why a domain looks healthy, weak, or
+              incomplete through an ITC-style diagnostics workspace.
             </p>
           </div>
 
@@ -179,7 +183,7 @@ export function Checker() {
               boxShadow: "var(--shadow)",
               borderRadius: 28,
               padding: 24,
-              backdropFilter: "blur(8px)"
+              backdropFilter: "blur(14px)"
             }}
           >
             <div style={{ display: "grid", gap: 14 }}>
@@ -213,7 +217,8 @@ export function Checker() {
                   borderRadius: 999,
                   padding: "14px 18px",
                   background: "var(--accent)",
-                  color: "white",
+                  color: "#07101d",
+                  fontWeight: 700,
                   cursor: loading ? "progress" : "pointer"
                 }}
               >
@@ -589,13 +594,15 @@ const panelStyle: React.CSSProperties = {
   border: "1px solid var(--border)",
   boxShadow: "var(--shadow)",
   borderRadius: 24,
-  padding: 24
+  padding: 24,
+  backdropFilter: "blur(12px)"
 };
 
 const headingStyle: React.CSSProperties = {
   marginTop: 0,
   marginBottom: 12,
-  fontSize: 20
+  fontSize: 20,
+  fontFamily: "var(--title-font)"
 };
 
 const subheadingStyle: React.CSSProperties = {
@@ -612,14 +619,15 @@ const inputStyle: React.CSSProperties = {
   borderRadius: 16,
   border: "1px solid var(--border)",
   padding: "14px 16px",
-  background: "rgba(255,255,255,0.7)"
+  background: "rgba(255,255,255,0.04)",
+  color: "var(--text)"
 };
 
 const recordBoxStyle: React.CSSProperties = {
   padding: "14px 16px",
   borderRadius: 16,
-  background: "rgba(242, 236, 227, 0.9)",
-  border: "1px solid rgba(31, 31, 25, 0.08)",
+  background: "rgba(255,255,255,0.03)",
+  border: "1px solid rgba(126, 172, 255, 0.14)",
   color: "var(--muted)",
   lineHeight: 1.6,
   wordBreak: "break-word"
@@ -636,8 +644,8 @@ const chipStyle: React.CSSProperties = {
   alignItems: "center",
   padding: "7px 10px",
   borderRadius: 999,
-  background: "rgba(178, 76, 44, 0.09)",
-  border: "1px solid rgba(178, 76, 44, 0.14)",
+  background: "var(--accent-soft)",
+  border: "1px solid rgba(34, 184, 207, 0.22)",
   color: "var(--text)",
   fontSize: 13
 };

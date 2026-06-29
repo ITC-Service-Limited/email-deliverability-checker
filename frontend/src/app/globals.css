@@ -1,16 +1,19 @@
 :root {
-  --background: #f5f0e8;
-  --panel: rgba(255, 255, 255, 0.86);
-  --panel-strong: #ffffff;
-  --text: #1f1f19;
-  --muted: #6d675d;
-  --border: rgba(31, 31, 25, 0.12);
-  --accent: #b24c2c;
-  --accent-soft: #f1c6ab;
-  --ok: #24704d;
-  --warn: #a15c00;
-  --error: #9f2d2d;
-  --shadow: 0 30px 80px rgba(65, 40, 24, 0.13);
+  --background: #08111f;
+  --panel: rgba(8, 17, 31, 0.78);
+  --panel-strong: rgba(11, 22, 39, 0.96);
+  --text: #edf4ff;
+  --muted: #9fb1c9;
+  --border: rgba(126, 172, 255, 0.18);
+  --accent: #22b8cf;
+  --accent-soft: rgba(34, 184, 207, 0.14);
+  --ok: #3ddc97;
+  --warn: #ffbf69;
+  --error: #ff6b6b;
+  --shadow: 0 36px 90px rgba(2, 8, 18, 0.42);
+  --grid: rgba(126, 172, 255, 0.08);
+  --title-font: Cambria, "Times New Roman", serif;
+  --body-font: "Trebuchet MS", "Segoe UI", sans-serif;
 }
 
 * {
@@ -18,11 +21,14 @@
 }
 
 html {
-  font-family: Georgia, "Times New Roman", serif;
+  font-family: var(--body-font);
   background:
-    radial-gradient(circle at top left, rgba(178, 76, 44, 0.16), transparent 30%),
-    radial-gradient(circle at top right, rgba(36, 112, 77, 0.12), transparent 24%),
-    linear-gradient(180deg, #f3ede2 0%, #f8f3eb 48%, #efe5d8 100%);
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    radial-gradient(circle at top left, rgba(34, 184, 207, 0.18), transparent 28%),
+    radial-gradient(circle at top right, rgba(87, 117, 255, 0.16), transparent 24%),
+    linear-gradient(180deg, #07101d 0%, #0d1b30 44%, #08111f 100%);
+  background-size: 32px 32px, 32px 32px, auto, auto, auto;
   min-height: 100%;
 }
 
@@ -30,6 +36,10 @@ body {
   margin: 0;
   color: var(--text);
   min-height: 100vh;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(34, 184, 207, 0.16), transparent 0, transparent 26%),
+    radial-gradient(circle at 86% 22%, rgba(87, 117, 255, 0.14), transparent 0, transparent 22%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
 }
 
 a {
