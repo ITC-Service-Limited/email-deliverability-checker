@@ -68,9 +68,9 @@ function severityColor(severity: Finding["severity"]) {
 }
 
 function statusTone(valid: boolean, hasRecord: boolean) {
-  if (!hasRecord) return { label: "Missing", color: "var(--error)" };
-  if (valid) return { label: "Healthy", color: "var(--ok)" };
-  return { label: "Needs review", color: "var(--warn)" };
+  if (!hasRecord) return { label: "Missing", color: "var(--error)", textColor: "#ffffff" };
+  if (valid) return { label: "Healthy", color: "var(--ok)", textColor: "#ffffff" };
+  return { label: "Needs review", color: "var(--warn)", textColor: "#ffffff" };
 }
 
 export function Checker() {
@@ -420,13 +420,13 @@ function OverviewRow({ result }: { result: ResponseData }) {
         title="SPF"
         value={result.spf.record ? "Record found" : "Missing"}
         detail={`${result.spf.lookup_count_estimate} lookup-style mechanisms`}
-        color={statusTone(result.spf.valid, Boolean(result.spf.record)).color}
+        tone={statusTone(result.spf.valid, Boolean(result.spf.record))}
       />
       <OverviewCard
         title="DKIM"
         value={result.dkim.valid ? "Selector healthy" : result.dkim.record ? "Needs review" : "Missing"}
         detail={result.dkim.key_size_bits ? `${result.dkim.key_size_bits} bit key estimate` : "Key size unknown"}
-        color={statusTone(result.dkim.valid, Boolean(result.dkim.record)).color}
+        tone={statusTone(result.dkim.valid, Boolean(result.dkim.record))}
       />
       <OverviewCard
         title="DMARC"
@@ -436,7 +436,7 @@ function OverviewRow({ result }: { result: ResponseData }) {
             ? "Aggregate reports enabled"
             : "No aggregate reporting"
         }
-        color={statusTone(result.dmarc.valid, Boolean(result.dmarc.record)).color}
+        tone={statusTone(result.dmarc.valid, Boolean(result.dmarc.record))}
       />
     </div>
   );
@@ -446,12 +446,12 @@ function OverviewCard({
   title,
   value,
   detail,
-  color
+  tone
 }: {
   title: string;
   value: string;
   detail: string;
-  color: string;
+  tone: { label: string; color: string; textColor: string };
 }) {
   return (
     <article style={panelStyle}>
@@ -459,14 +459,18 @@ function OverviewCard({
         <h2 style={headingStyle}>{title}</h2>
         <span
           style={{
-            color,
+            background: tone.color,
+            color: tone.textColor,
             fontSize: 12,
             fontWeight: 700,
             letterSpacing: "0.06em",
-            textTransform: "uppercase"
+            textTransform: "uppercase",
+            padding: "4px 8px",
+            display: "inline-flex",
+            alignItems: "center"
           }}
         >
-          {title}
+          {tone.label}
         </span>
       </div>
       <div style={{ fontSize: 24, lineHeight: 1.15 }}>{value}</div>
@@ -483,7 +487,7 @@ function ProtocolCard({
   listSections
 }: {
   title: string;
-  tone: { label: string; color: string };
+  tone: { label: string; color: string; textColor: string };
   record: string | null;
   sections: Array<{ label: string; value: string }>;
   listSections: Array<{ title: string; items: string[] }>;
@@ -494,11 +498,15 @@ function ProtocolCard({
         <h2 style={headingStyle}>{title}</h2>
         <span
           style={{
-            color: tone.color,
+            background: tone.color,
+            color: tone.textColor,
             fontSize: 12,
             fontWeight: 700,
             letterSpacing: "0.06em",
-            textTransform: "uppercase"
+            textTransform: "uppercase",
+            padding: "4px 8px",
+            display: "inline-flex",
+            alignItems: "center"
           }}
         >
           {tone.label}
@@ -546,7 +554,7 @@ function MetricRow({ label, children }: { label: string; children: ReactNode }) 
       }}
     >
       <div style={{ color: "var(--muted)" }}>{label}</div>
-      <div style={{ wordBreak: "break-word" }}>{children}</div>
+      <div style={{ wordBreak: "break-word", overflowWrap: "anywhere" }}>{children}</div>
     </div>
   );
 }
@@ -631,7 +639,8 @@ const recordBoxStyle: React.CSSProperties = {
   border: "1px solid rgba(28, 28, 28, 0.12)",
   color: "var(--muted)",
   lineHeight: 1.6,
-  wordBreak: "break-word"
+  wordBreak: "break-word",
+  overflowWrap: "anywhere"
 };
 
 const chipWrapStyle: React.CSSProperties = {
@@ -641,12 +650,14 @@ const chipWrapStyle: React.CSSProperties = {
 };
 
 const chipStyle: React.CSSProperties = {
-  display: "inline-flex",
-  alignItems: "center",
+  display: "inline-block",
   padding: "7px 10px",
   borderRadius: 0,
   background: "var(--accent-soft)",
   border: "1px solid rgba(226, 5, 18, 0.18)",
   color: "var(--text)",
-  fontSize: 13
+  fontSize: 13,
+  maxWidth: "100%",
+  wordBreak: "break-word",
+  overflowWrap: "anywhere"
 };
