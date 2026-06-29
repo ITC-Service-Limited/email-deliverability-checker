@@ -151,8 +151,8 @@ export function Checker() {
             </p>
             <h1
               style={{
-                fontSize: "clamp(2.8rem, 8vw, 5.4rem)",
-                lineHeight: 0.95,
+                fontSize: "clamp(2.2rem, 5.2vw, 4.1rem)",
+                lineHeight: 1.02,
                 margin: "18px 0 18px",
                 fontFamily: "var(--title-font)",
                 letterSpacing: "-0.04em",
