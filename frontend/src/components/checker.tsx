@@ -76,7 +76,6 @@ function statusTone(valid: boolean, hasRecord: boolean) {
 
 export function Checker() {
   const [domain, setDomain] = useState("");
-  const [selector, setSelector] = useState("default");
   const [result, setResult] = useState<ResponseData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -93,8 +92,7 @@ export function Checker() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          domain,
-          dkim_selector: selector
+          domain
         })
       });
 
@@ -227,16 +225,6 @@ export function Checker() {
                   value={domain}
                   onChange={(event) => setDomain(event.target.value)}
                   placeholder="example.com"
-                  style={inputStyle}
-                />
-              </label>
-
-              <label style={{ display: "grid", gap: 8 }}>
-                <span>DKIM selector</span>
-                <input
-                  value={selector}
-                  onChange={(event) => setSelector(event.target.value)}
-                  placeholder="default"
                   style={inputStyle}
                 />
               </label>

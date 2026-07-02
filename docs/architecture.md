@@ -22,8 +22,17 @@ That means:
 - NS lookup
 - MX lookup
 - SPF discovery and estimated lookup counting
-- DKIM selector lookup and estimated key size
+- DKIM discovery and/or advanced verification
 - DMARC discovery and tag parsing
+
+## HubSpot Presentation Layer
+
+The HubSpot module should:
+
+- collect only a domain or email input
+- call the same external backend used by the standalone frontend
+- display SPF, DMARC, MX, and DNS basics directly
+- keep DKIM as a locked or advanced CTA until deeper verification is ready
 
 ## Natural Next Steps
 

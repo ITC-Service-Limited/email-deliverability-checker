@@ -18,7 +18,7 @@ def run_domain_check(
     settings: Settings = Depends(get_settings),
 ) -> DomainCheckResponse:
     domain = payload.domain.strip().lower()
-    selector = (payload.dkim_selector or settings.default_dkim_selector).strip()
+    selector = settings.default_dkim_selector.strip()
 
     nameservers = get_nameservers(domain)
     mx = get_mx(domain)
