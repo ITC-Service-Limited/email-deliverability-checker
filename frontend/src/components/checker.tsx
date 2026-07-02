@@ -120,46 +120,46 @@ export function Checker() {
     <main
       style={{
         minHeight: "100vh",
-        padding: "48px 20px 80px"
+        padding: "0 20px 80px"
       }}
     >
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          margin: "0 -20px 40px",
+          background: "#1c1c1c",
+          borderBottom: "3px solid var(--accent)",
+          padding: "18px 20px"
+        }}
+      >
+        <a
+          href="https://itcservice.co.uk"
+          aria-label="Visit ITC Service"
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 0
+          }}
+        >
+          <Image
+            src="/itc-service-logo.webp"
+            alt="ITC Service logo"
+            width={188}
+            height={85}
+            priority
+            style={{ width: "188px", height: "auto", display: "block" }}
+          />
+        </a>
+      </header>
+
       <div
         style={{
           maxWidth: 1120,
           margin: "0 auto"
         }}
       >
-        <header
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginBottom: 40,
-            background: "#ffffff",
-            borderBottom: "3px solid var(--accent)",
-            padding: "18px 20px"
-          }}
-        >
-          <a
-            href="https://itcservice.co.uk"
-            aria-label="Visit ITC Service"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: 0
-            }}
-          >
-            <Image
-              src="/itc-service-logo.webp"
-              alt="ITC Service logo"
-              width={188}
-              height={85}
-              priority
-              style={{ width: "188px", height: "auto", display: "block" }}
-            />
-          </a>
-        </header>
-
         <section
           style={{
             display: "grid",
