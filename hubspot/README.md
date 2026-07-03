@@ -1,31 +1,39 @@
-# HubSpot Module Plan
+# HubSpot Module Scaffold
 
-This folder now holds the implementation plan for the HubSpot-facing version of the
-deliverability checker.
+This folder now includes the first implementation scaffold for the client-facing HubSpot
+module:
 
-The product is still built around one core principle:
+- `modules/email-deliverability-checker.module/meta.json`
+- `modules/email-deliverability-checker.module/fields.json`
+- `modules/email-deliverability-checker.module/module.html`
+- `modules/email-deliverability-checker.module/module.css`
+- `modules/email-deliverability-checker.module/module.js`
 
-- `backend/` owns SPF, DKIM, DMARC, MX, and DNS analysis
-- `frontend/` is the standalone web app
-- `hubspot/` defines how HubSpot will collect input and display results
+## Expected Setup In HubSpot
 
-The HubSpot version should remain a thin presentation layer over the same backend API
-used by the standalone app.
+1. Upload the module through the HubSpot CLI or Design Manager.
+2. Add the module to a page.
+3. Set these module fields:
+   - `portal_id`
+   - `form_id`
+   - `domain_field_name` as the internal name of your domain field
+   - `email_field_name` as fallback if you want the module to extract a domain from email
+   - `api_base_url` pointing at the Railway backend
+   - `contact_url` for the DKIM CTA
+4. Create or select a HubSpot form that includes at least one of:
+   - a domain field
+   - an email field
 
-## What Lives Here
+## Current Behavior
 
-- [module-workflow.md](./module-workflow.md): end-user journey and module behavior
-- [api-contract.md](./api-contract.md): request and response contract for the external API
-- future HubSpot module/app files when implementation begins
+- the HubSpot form loads first
+- once the form is submitted, the module extracts the domain
+- the module calls `POST /api/v1/checks/domain`
+- SPF, DMARC, MX, nameservers, and filtered findings render inline
+- DKIM remains locked behind a `Contact us` CTA
 
-## Current Product Direction
+## Notes
 
-The HubSpot module is intended for client-facing use, so the self-serve experience should:
-
-- collect only a domain or email address
-- show SPF, DMARC, MX, and DNS health directly
-- keep DKIM as an advanced/locked card for now
-- send users to a contact CTA for deeper deliverability reviews
-
-The core SPF, DKIM, DMARC, and deliverability logic should remain in `backend/` so
-accuracy does not depend on HubSpot-specific runtime constraints.
+- the module reuses the same external backend as the standalone Railway app
+- no DNS logic is handled inside HubSpot itself
+- the module currently assumes the backend already permits requests from the HubSpot page origin

@@ -1,0 +1,9 @@
+{
+  "label": "Email Deliverability Checker",
+  "is_available_for_new_content": true,
+  "host_template_types": ["PAGE", "BLOG_POST", "BLOG_LISTING"],
+  "global": false,
+  "external_js": ["https://js.hsforms.net/forms/embed/v2.js"],
+  "css_assets": [{ "path": "./module.css" }],
+  "js_assets": [{ "path": "./module.js" }]
+}

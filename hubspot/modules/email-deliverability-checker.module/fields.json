@@ -1,0 +1,62 @@
+[
+  {
+    "name": "headline",
+    "label": "Headline",
+    "type": "text",
+    "default": "Check sender trust before it becomes a delivery problem"
+  },
+  {
+    "name": "description",
+    "label": "Description",
+    "type": "textarea",
+    "default": "Submit the form to run SPF, DMARC, MX, and nameserver checks. DKIM remains an advanced ITC review handled through direct follow-up."
+  },
+  {
+    "name": "portal_id",
+    "label": "HubSpot portal ID",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "name": "form_id",
+    "label": "HubSpot form ID",
+    "type": "text",
+    "default": ""
+  },
+  {
+    "name": "domain_field_name",
+    "label": "Domain field internal name",
+    "type": "text",
+    "default": "domain"
+  },
+  {
+    "name": "email_field_name",
+    "label": "Fallback email field internal name",
+    "type": "text",
+    "default": "email"
+  },
+  {
+    "name": "api_base_url",
+    "label": "API base URL",
+    "type": "text",
+    "default": "https://backend-production-ac50b.up.railway.app"
+  },
+  {
+    "name": "contact_url",
+    "label": "Contact URL",
+    "type": "text",
+    "default": "https://itcservice.co.uk"
+  },
+  {
+    "name": "loading_text",
+    "label": "Loading text",
+    "type": "text",
+    "default": "Running deliverability checks..."
+  },
+  {
+    "name": "error_text",
+    "label": "Error text",
+    "type": "text",
+    "default": "We could not complete the check just now. Please try again."
+  }
+]

@@ -1,0 +1,34 @@
+<section
+  class="itc-deliverability-module"
+  data-deliverability-root
+  data-api-base-url="{{ module.api_base_url|escape_attr }}"
+  data-domain-field-name="{{ module.domain_field_name|escape_attr }}"
+  data-email-field-name="{{ module.email_field_name|escape_attr }}"
+  data-contact-url="{{ module.contact_url|escape_attr }}"
+  data-loading-text="{{ module.loading_text|escape_attr }}"
+  data-error-text="{{ module.error_text|escape_attr }}"
+>
+  <div class="itc-deliverability-shell">
+    <div class="itc-deliverability-intro">
+      <p class="itc-deliverability-eyebrow">ITC Service | HubSpot checker</p>
+      <h2>{{ module.headline }}</h2>
+      <p>{{ module.description }}</p>
+    </div>
+
+    {% if module.portal_id and module.form_id %}
+      <div
+        class="itc-deliverability-form"
+        data-hs-form
+        data-portal-id="{{ module.portal_id|escape_attr }}"
+        data-form-id="{{ module.form_id|escape_attr }}"
+      ></div>
+    {% else %}
+      <div class="itc-deliverability-config-note">
+        Add the HubSpot portal ID and form ID in the module settings to load the form.
+      </div>
+    {% endif %}
+
+    <div class="itc-deliverability-status" data-status hidden></div>
+    <div class="itc-deliverability-results" data-results hidden></div>
+  </div>
+</section>

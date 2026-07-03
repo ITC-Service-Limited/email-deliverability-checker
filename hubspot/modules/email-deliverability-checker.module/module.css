@@ -1,0 +1,341 @@
+.itc-deliverability-module {
+  --itc-dark: #1c1c1c;
+  --itc-accent: #e20512;
+  --itc-border: rgba(28, 28, 28, 0.12);
+  --itc-muted: rgba(28, 28, 28, 0.68);
+  --itc-soft: rgba(226, 5, 18, 0.08);
+  --itc-shadow: 0 18px 50px rgba(28, 28, 28, 0.08);
+  font-family: Poppins, sans-serif;
+  color: var(--itc-dark);
+}
+
+.itc-deliverability-shell {
+  display: grid;
+  gap: 24px;
+}
+
+.itc-deliverability-intro {
+  display: grid;
+  gap: 14px;
+  max-width: 780px;
+}
+
+.itc-deliverability-eyebrow {
+  margin: 0;
+  color: var(--itc-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.itc-deliverability-intro h2 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+  line-height: 0.98;
+  font-weight: 700;
+}
+
+.itc-deliverability-intro p {
+  margin: 0;
+  color: var(--itc-muted);
+  line-height: 1.7;
+}
+
+.itc-deliverability-form,
+.itc-deliverability-config-note,
+.itc-deliverability-status,
+.itc-deliverability-panel,
+.itc-deliverability-protocol,
+.itc-deliverability-simple-card {
+  background: #ffffff;
+  border: 1px solid var(--itc-border);
+  box-shadow: var(--itc-shadow);
+}
+
+.itc-deliverability-form,
+.itc-deliverability-config-note,
+.itc-deliverability-status {
+  padding: 24px;
+}
+
+.itc-deliverability-config-note {
+  color: var(--itc-muted);
+}
+
+.itc-deliverability-status {
+  color: var(--itc-dark);
+}
+
+.itc-deliverability-status[data-tone="error"] {
+  border-color: rgba(226, 5, 18, 0.3);
+}
+
+.itc-deliverability-status[data-tone="loading"] {
+  border-color: rgba(28, 28, 28, 0.18);
+}
+
+.itc-deliverability-results {
+  display: grid;
+  gap: 18px;
+}
+
+.itc-deliverability-grid,
+.itc-deliverability-overview,
+.itc-deliverability-footer-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.itc-deliverability-overview {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.itc-deliverability-grid {
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.itc-deliverability-footer-grid {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.itc-deliverability-panel,
+.itc-deliverability-protocol,
+.itc-deliverability-simple-card {
+  padding: 24px;
+}
+
+.itc-deliverability-panel h3,
+.itc-deliverability-protocol h3,
+.itc-deliverability-simple-card h3,
+.itc-deliverability-overview-card h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.itc-deliverability-overview-card {
+  background: #ffffff;
+  border: 1px solid var(--itc-border);
+  box-shadow: var(--itc-shadow);
+  padding: 24px;
+  display: grid;
+  gap: 12px;
+}
+
+.itc-deliverability-card-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+}
+
+.itc-deliverability-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--itc-dark);
+}
+
+.itc-deliverability-value {
+  font-size: 24px;
+  line-height: 1.15;
+}
+
+.itc-deliverability-detail,
+.itc-deliverability-finding p,
+.itc-deliverability-metric-label,
+.itc-deliverability-simple-card pre,
+.itc-deliverability-simple-card div,
+.itc-deliverability-record {
+  color: var(--itc-muted);
+}
+
+.itc-deliverability-detail,
+.itc-deliverability-finding p {
+  margin: 0;
+}
+
+.itc-deliverability-findings {
+  display: grid;
+  gap: 12px;
+}
+
+.itc-deliverability-finding {
+  border-left: 4px solid var(--itc-dark);
+  padding-left: 14px;
+}
+
+.itc-deliverability-finding strong {
+  text-transform: capitalize;
+}
+
+.itc-deliverability-record {
+  padding: 14px 16px;
+  border: 1px solid var(--itc-border);
+  background: rgba(28, 28, 28, 0.03);
+  line-height: 1.6;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.itc-deliverability-metrics {
+  display: grid;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.itc-deliverability-metric {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 12px;
+}
+
+.itc-deliverability-metric-value {
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.itc-deliverability-list-section {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.itc-deliverability-list-section h4 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--itc-muted);
+}
+
+.itc-deliverability-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.itc-deliverability-chip {
+  display: inline-block;
+  padding: 7px 10px;
+  border: 1px solid rgba(226, 5, 18, 0.18);
+  background: var(--itc-soft);
+  font-size: 13px;
+  max-width: 100%;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+.itc-deliverability-dkim-locked {
+  position: relative;
+  min-height: 420px;
+  border: 1px solid var(--itc-border);
+  background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(255,255,255,0.72));
+  overflow: hidden;
+}
+
+.itc-deliverability-dkim-preview {
+  padding: 18px;
+  filter: blur(8px);
+  transform: scale(1.02);
+  transform-origin: center;
+  user-select: none;
+  pointer-events: none;
+}
+
+.itc-deliverability-dkim-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 28px;
+  background: linear-gradient(180deg, rgba(28, 28, 28, 0.08), rgba(28, 28, 28, 0.72));
+  color: #ffffff;
+}
+
+.itc-deliverability-dkim-overlay p,
+.itc-deliverability-dkim-overlay h4 {
+  margin: 0;
+}
+
+.itc-deliverability-dkim-overlay .itc-deliverability-eyebrow {
+  color: #ffffff;
+}
+
+.itc-deliverability-dkim-overlay h4 {
+  font-size: 28px;
+  line-height: 1.05;
+}
+
+.itc-deliverability-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  padding: 0 18px;
+  background: var(--itc-accent);
+  border: 1px solid var(--itc-accent);
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.itc-deliverability-simple-card pre {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.6;
+  font-family: inherit;
+}
+
+.itc-deliverability-module .hs-form-field > label,
+.itc-deliverability-module .hs-form-field label {
+  font-family: Poppins, sans-serif;
+  color: var(--itc-dark);
+}
+
+.itc-deliverability-module .hs-input,
+.itc-deliverability-module .hs-form textarea,
+.itc-deliverability-module .hs-form select {
+  width: 100%;
+  border: 1px solid var(--itc-border);
+  background: #ffffff;
+  color: var(--itc-dark);
+  padding: 14px 16px;
+  border-radius: 0;
+  font-family: Poppins, sans-serif;
+}
+
+.itc-deliverability-module .hs-button {
+  background: var(--itc-accent);
+  color: #ffffff;
+  border: 1px solid var(--itc-accent);
+  border-radius: 0;
+  padding: 14px 18px;
+  font-family: Poppins, sans-serif;
+  font-weight: 700;
+}
+
+@media (max-width: 767px) {
+  .itc-deliverability-intro h2 {
+    font-size: 2.2rem;
+  }
+
+  .itc-deliverability-metric {
+    grid-template-columns: 1fr;
+  }
+
+  .itc-deliverability-dkim-overlay h4 {
+    font-size: 24px;
+  }
+}
