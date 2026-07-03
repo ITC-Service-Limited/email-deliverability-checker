@@ -18,8 +18,9 @@
 .itc-deliverability-intro {
   display: grid;
   gap: 14px;
-  max-width: 780px;
-  padding: 34px 32px 30px;
+  width: 100%;
+  max-width: none;
+  padding: 42px 40px 38px;
   background:
     linear-gradient(90deg, rgba(226, 5, 18, 0.08), rgba(226, 5, 18, 0) 24%),
     linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0)),
@@ -67,16 +68,20 @@
   line-height: 0.98;
   font-weight: 700;
   color: #ffffff;
-  max-width: 720px;
+  max-width: 760px;
   position: relative;
   z-index: 1;
+}
+
+.itc-deliverability-intro h2 .itc-deliverability-accent-text {
+  color: var(--itc-accent);
 }
 
 .itc-deliverability-intro p {
   margin: 0;
   color: var(--itc-muted-light);
   line-height: 1.7;
-  max-width: 660px;
+  max-width: 640px;
   position: relative;
   z-index: 1;
 }
@@ -118,6 +123,10 @@
   background: #ecfff7;
   border-color: rgba(0, 163, 107, 0.22);
   color: #17694d;
+}
+
+.itc-deliverability-module[data-submitted="true"] .itc-deliverability-form {
+  display: none;
 }
 
 .itc-deliverability-results {
@@ -264,6 +273,11 @@
   color: #ffffff;
   border-color: rgba(226, 5, 18, 0.16);
   box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.itc-deliverability-auth-section[data-tone="dark"] h3,
+.itc-deliverability-auth-section[data-tone="dark"] h4 {
+  color: #ffffff;
 }
 
 .itc-deliverability-auth-section[data-tone="dark"] .itc-deliverability-detail,
@@ -451,7 +465,7 @@
 
 @media (max-width: 767px) {
   .itc-deliverability-intro {
-    padding: 28px 22px 24px;
+    padding: 30px 22px 26px;
   }
 
   .itc-deliverability-intro h2 {

@@ -297,12 +297,14 @@
         return response.json();
       })
       .then(function (result) {
+        root.setAttribute("data-submitted", "true");
         setStatus(statusNode, 'success', 'Thanks for submitting the form.');
         if (!resultsNode) return;
         resultsNode.innerHTML = renderResults(result, contactUrl);
         resultsNode.hidden = false;
       })
       .catch(function () {
+        root.removeAttribute("data-submitted");
         setStatus(statusNode, 'error', errorText);
         if (resultsNode) {
           resultsNode.hidden = true;

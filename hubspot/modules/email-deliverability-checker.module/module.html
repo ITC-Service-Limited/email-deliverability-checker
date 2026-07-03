@@ -11,7 +11,7 @@
   <div class="itc-deliverability-shell">
     <div class="itc-deliverability-intro">
       <p class="itc-deliverability-eyebrow">ITC Service | Email deliverability checker</p>
-      <h2>{{ module.headline }}</h2>
+      <h2>{{ module.headline|replace('delivery problem', '<span class="itc-deliverability-accent-text">delivery problem</span>')|safe }}</h2>
       <p>{{ module.description }}</p>
     </div>
 
