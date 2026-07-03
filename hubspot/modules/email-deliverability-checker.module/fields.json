@@ -1,62 +1,92 @@
 [
   {
-    "name": "headline",
+    "default": "Check sender trust before it becomes a delivery problem",
     "label": "Headline",
+    "locked": false,
+    "name": "headline",
+    "required": false,
     "type": "text",
-    "default": "Check sender trust before it becomes a delivery problem"
+    "validation_regex": ""
   },
   {
-    "name": "description",
+    "default": "Submit the form to run SPF, DMARC, MX, and nameserver checks. DKIM remains an advanced ITC review handled through direct follow-up.",
     "label": "Description",
-    "type": "textarea",
-    "default": "Submit the form to run SPF, DMARC, MX, and nameserver checks. DKIM remains an advanced ITC review handled through direct follow-up."
+    "locked": false,
+    "name": "description",
+    "required": false,
+    "type": "text",
+    "validation_regex": ""
   },
   {
-    "name": "portal_id",
+    "default": "8403871",
     "label": "HubSpot portal ID",
+    "locked": false,
+    "name": "portal_id",
+    "required": false,
     "type": "text",
-    "default": ""
+    "validation_regex": ""
   },
   {
-    "name": "form_id",
+    "default": "e609cd60-6bb2-4401-93b9-f9b158436748",
     "label": "HubSpot form ID",
+    "locked": false,
+    "name": "form_id",
+    "required": false,
     "type": "text",
-    "default": ""
+    "validation_regex": ""
   },
   {
-    "name": "domain_field_name",
+    "default": "domain",
     "label": "Domain field internal name",
+    "locked": false,
+    "name": "domain_field_name",
+    "required": false,
     "type": "text",
-    "default": "domain"
+    "validation_regex": ""
   },
   {
-    "name": "email_field_name",
+    "default": "email",
     "label": "Fallback email field internal name",
+    "locked": false,
+    "name": "email_field_name",
+    "required": false,
     "type": "text",
-    "default": "email"
+    "validation_regex": ""
   },
   {
-    "name": "api_base_url",
+    "default": "https://backend-production-ac50b.up.railway.app",
     "label": "API base URL",
+    "locked": false,
+    "name": "api_base_url",
+    "required": false,
     "type": "text",
-    "default": "https://backend-production-ac50b.up.railway.app"
+    "validation_regex": ""
   },
   {
-    "name": "contact_url",
+    "default": "https://itcservice.co.uk",
     "label": "Contact URL",
+    "locked": false,
+    "name": "contact_url",
+    "required": false,
     "type": "text",
-    "default": "https://itcservice.co.uk"
+    "validation_regex": ""
   },
   {
-    "name": "loading_text",
+    "default": "Running deliverability checks...",
     "label": "Loading text",
+    "locked": false,
+    "name": "loading_text",
+    "required": false,
     "type": "text",
-    "default": "Running deliverability checks..."
+    "validation_regex": ""
   },
   {
-    "name": "error_text",
+    "default": "We could not complete the check just now. Please try again.",
     "label": "Error text",
+    "locked": false,
+    "name": "error_text",
+    "required": false,
     "type": "text",
-    "default": "We could not complete the check just now. Please try again."
+    "validation_regex": ""
   }
 ]
