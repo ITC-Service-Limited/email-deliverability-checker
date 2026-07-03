@@ -129,15 +129,20 @@
     return '<span class="itc-deliverability-badge" style="background:' + escapeHtml(color) + '">' + escapeHtml(label) + "</span>";
   }
 
-  function renderSummaryItem(title, value, detail, tone) {
+  function renderFindingCard(finding) {
     return [
-      '<div class="itc-deliverability-summary-item">',
-      '<div class="itc-deliverability-summary-label">' + escapeHtml(title) + '</div>',
-      '<div class="itc-deliverability-card-head">',
-      '<div class="itc-deliverability-value">' + escapeHtml(value) + '</div>',
-      createBadge(tone.label, tone.color),
-      '</div>',
-      '<p class="itc-deliverability-detail">' + escapeHtml(detail) + '</p>',
+      '<div class="itc-deliverability-finding-card">',
+      '<div class="itc-deliverability-finding-label">' + escapeHtml(finding.severity) + '</div>',
+      '<p class="itc-deliverability-detail">' + escapeHtml(finding.message) + '</p>',
+      '</div>'
+    ].join('');
+  }
+
+  function renderSectionHeader(kicker, title) {
+    return [
+      '<div class="itc-deliverability-section-header">',
+      '<p class="itc-deliverability-kicker">' + escapeHtml(kicker) + '</p>',
+      '<h3 class="itc-deliverability-section-title">' + escapeHtml(title) + '</h3>',
       '</div>'
     ].join('');
   }
@@ -169,14 +174,16 @@
     ].join('');
   }
 
-  function renderProtocolSection(title, data, sections, listSections) {
+  function renderProtocolSection(title, data, sections, listSections, options) {
+    var config = options || {};
     var tone = statusTone(Boolean(data.valid), Boolean(data.record));
     return [
-      '<article class="itc-deliverability-auth-section">',
+      '<article class="itc-deliverability-auth-section"' + (config.dark ? ' data-tone="dark"' : '') + '>',
       '<div class="itc-deliverability-card-head">',
       '<h3>' + escapeHtml(title) + '</h3>',
-      createBadge(tone.label, tone.color),
+      createBadge(config.badgeLabel || tone.label, config.badgeColor || tone.color),
       '</div>',
+      config.customIntro || '',
       '<div class="itc-deliverability-record">' + escapeHtml(data.record || ('No ' + title + ' record found.')) + '</div>',
       '<div class="itc-deliverability-metrics">' + sections.map(function (section) {
         return renderMetric(section.label, section.value);
@@ -190,28 +197,15 @@
 
   function renderLockedDkimCard(contactUrl) {
     return [
-      '<article class="itc-deliverability-auth-section">',
+      '<article class="itc-deliverability-auth-section" data-tone="dark">',
       '<div class="itc-deliverability-card-head">',
       '<h3>DKIM</h3>',
       createBadge('Contact us', '#e20512'),
       '</div>',
-      '<div class="itc-deliverability-dkim-locked">',
-      '<div class="itc-deliverability-dkim-preview" aria-hidden="true">',
-      '<div class="itc-deliverability-record">v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...</div>',
-      '<div class="itc-deliverability-metrics">',
-      renderMetric('Selector host', 'default._domainkey.example.com'),
-      renderMetric('Key type', 'rsa'),
-      renderMetric('Estimated key size', '2048 bits'),
-      '</div>',
-      renderListSection('Hash algorithms', ['sha256', 'sha1']),
-      '</div>',
-      '<div class="itc-deliverability-dkim-overlay">',
-      '<p class="itc-deliverability-eyebrow">Advanced check</p>',
-      '<h4>DKIM review is handled directly by ITC</h4>',
-      '<p>We validate selectors, signing keys, and alignment as part of a guided deliverability review.</p>',
-      '<a class="itc-deliverability-button" href="' + escapeHtml(contactUrl) + '">Contact us</a>',
-      '</div>',
-      '</div>',
+      '<p class="itc-deliverability-locked-kicker">Advanced check</p>',
+      '<h4 style="margin:0; font-size:38px; line-height:1.02; max-width:360px;">DKIM review is handled directly by ITC.</h4>',
+      '<p class="itc-deliverability-detail" style="max-width:360px;">We validate selectors, signing keys, and alignment as part of a guided deliverability review.</p>',
+      '<div style="margin-top:8px;"><a class="itc-deliverability-button" href="' + escapeHtml(contactUrl) + '">Contact us</a></div>',
       '</article>'
     ].join('');
   }
@@ -225,58 +219,21 @@
     if (!visibleFindings.length) return '';
 
     return [
-      '<section class="itc-deliverability-panel">',
-      '<h3>Findings</h3>',
-      '<div class="itc-deliverability-findings">',
-      visibleFindings.map(function (finding) {
-        var borderColor = finding.severity === 'error'
-          ? '#e20512'
-          : finding.severity === 'warning'
-            ? '#b86b00'
-            : '#1c1c1c';
-        return [
-          '<div class="itc-deliverability-finding" style="border-left-color:' + escapeHtml(borderColor) + '">',
-          '<strong>' + escapeHtml(finding.severity) + '</strong>',
-          '<p>' + escapeHtml(finding.message) + '</p>',
-          '</div>'
-        ].join('');
-      }).join(''),
+      '<section class="itc-deliverability-section">',
+      renderSectionHeader('Findings', 'Summary of what we detected.'),
+      '<div class="itc-deliverability-findings-grid">',
+      visibleFindings.map(renderFindingCard).join(''),
       '</div>',
       '</section>'
     ].join('');
   }
 
   function renderResults(result, contactUrl) {
-    var spfTone = statusTone(Boolean(result.spf.valid), Boolean(result.spf.record));
-    var dmarcTone = statusTone(Boolean(result.dmarc.valid), Boolean(result.dmarc.record));
-
     return [
       renderFindings(result.findings),
-      '<section class="itc-deliverability-auth-report">',
-      '<div class="itc-deliverability-auth-summary">',
-      '<h3>Authentication checks</h3>',
-      '<div class="itc-deliverability-summary-grid">',
-      renderSummaryItem(
-        'SPF',
-        result.spf.record ? 'Record found' : 'Missing',
-        String(result.spf.lookup_count_estimate) + ' lookup-style mechanisms',
-        spfTone
-      ),
-      renderSummaryItem(
-        'DKIM',
-        'Expert review available',
-        'Selector discovery, signing checks, and alignment validation handled by ITC.',
-        { label: 'Contact us', color: '#e20512' }
-      ),
-      renderSummaryItem(
-        'DMARC',
-        result.dmarc.policy ? 'Policy: ' + result.dmarc.policy : 'Missing',
-        result.dmarc.aggregate_reporting_enabled ? 'Aggregate reports enabled' : 'No aggregate reporting',
-        dmarcTone
-      ),
-      '</div>',
-      '</div>',
-      '<div class="itc-deliverability-auth-sections">',
+      '<section class="itc-deliverability-section">',
+      renderSectionHeader('Authentication checks', 'SPF, DKIM and DMARC at a glance.'),
+      '<div class="itc-deliverability-auth-columns">',
       renderProtocolSection('SPF', result.spf, [
         { label: 'Lookup estimate', value: String(result.spf.lookup_count_estimate) + ' / 10' },
         { label: 'Policy ending', value: describeSpfAll(result.spf.all_qualifier) },
@@ -297,6 +254,7 @@
       ], [
         { title: 'Record tags', items: Object.keys(result.dmarc.tags || {}).map(function (key) { return key + '=' + result.dmarc.tags[key]; }) }
       ]),
+      '</div>',
       '</section>',
       '<section class="itc-deliverability-footer-grid">',
       '<article class="itc-deliverability-simple-card"><h3>Nameservers</h3><pre>' + escapeHtml((result.nameservers.values || []).join('\n') || 'No nameservers returned.') + '</pre></article>',
@@ -339,7 +297,7 @@
         return response.json();
       })
       .then(function (result) {
-        setStatus(statusNode, '', '');
+        setStatus(statusNode, 'success', 'Thanks for submitting the form.');
         if (!resultsNode) return;
         resultsNode.innerHTML = renderResults(result, contactUrl);
         resultsNode.hidden = false;

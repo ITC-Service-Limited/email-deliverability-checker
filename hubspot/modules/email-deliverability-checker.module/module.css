@@ -114,31 +114,31 @@
   border-color: rgba(28, 28, 28, 0.18);
 }
 
+.itc-deliverability-status[data-tone="success"] {
+  background: #ecfff7;
+  border-color: rgba(0, 163, 107, 0.22);
+  color: #17694d;
+}
+
 .itc-deliverability-results {
   display: grid;
-  gap: 18px;
+  gap: 42px;
+  padding-top: 8px;
 }
 
-.itc-deliverability-auth-report,
-.itc-deliverability-auth-sections,
+.itc-deliverability-auth-columns,
 .itc-deliverability-footer-grid {
   display: grid;
   gap: 18px;
 }
 
-.itc-deliverability-auth-report {
-  background: #ffffff;
-  border: 1px solid var(--itc-border);
-  box-shadow: var(--itc-shadow);
-  overflow: hidden;
-}
-
-.itc-deliverability-auth-sections {
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+.itc-deliverability-auth-columns {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
 }
 
 .itc-deliverability-footer-grid {
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .itc-deliverability-panel,
@@ -150,17 +150,43 @@
 .itc-deliverability-panel h3,
 .itc-deliverability-auth-section h3,
 .itc-deliverability-simple-card h3,
-.itc-deliverability-auth-summary h3 {
+.itc-deliverability-section-title {
   margin: 0;
   font-size: 20px;
   font-weight: 700;
 }
 
-.itc-deliverability-auth-summary {
+.itc-deliverability-section {
   display: grid;
-  gap: 12px;
-  padding: 24px;
-  border-bottom: 1px solid var(--itc-border);
+  gap: 18px;
+}
+
+.itc-deliverability-section-header {
+  display: grid;
+  gap: 10px;
+}
+
+.itc-deliverability-kicker {
+  margin: 0;
+  width: fit-content;
+  padding-left: 28px;
+  position: relative;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--itc-accent);
+}
+
+.itc-deliverability-kicker::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 20px;
+  height: 1px;
+  background: var(--itc-accent);
+  transform: translateY(-50%);
 }
 
 .itc-deliverability-card-head {
@@ -189,25 +215,26 @@
   line-height: 1.15;
 }
 
-.itc-deliverability-summary-grid {
+.itc-deliverability-findings-grid {
   display: grid;
   gap: 14px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.itc-deliverability-summary-item {
+.itc-deliverability-finding-card {
   display: grid;
-  gap: 10px;
+  gap: 8px;
   padding: 16px 18px;
   border: 1px solid var(--itc-border);
-  background: rgba(28, 28, 28, 0.02);
+  background: #ffffff;
+  border-left: 3px solid var(--itc-accent);
 }
 
-.itc-deliverability-summary-label {
-  font-size: 13px;
+.itc-deliverability-finding-label {
+  font-size: 11px;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--itc-muted);
+  letter-spacing: 0.12em;
+  color: var(--itc-accent);
   font-weight: 700;
 }
 
@@ -225,16 +252,25 @@
   margin: 0;
 }
 
-.itc-deliverability-auth-sections {
-  gap: 0;
-}
-
 .itc-deliverability-auth-section {
   background: #ffffff;
+  border: 1px solid var(--itc-border);
+  box-shadow: var(--itc-shadow);
+  min-height: 100%;
 }
 
-.itc-deliverability-auth-section + .itc-deliverability-auth-section {
-  border-top: 1px solid var(--itc-border);
+.itc-deliverability-auth-section[data-tone="dark"] {
+  background: #1c1c1c;
+  color: #ffffff;
+  border-color: rgba(226, 5, 18, 0.16);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.itc-deliverability-auth-section[data-tone="dark"] .itc-deliverability-detail,
+.itc-deliverability-auth-section[data-tone="dark"] .itc-deliverability-metric-label,
+.itc-deliverability-auth-section[data-tone="dark"] .itc-deliverability-record,
+.itc-deliverability-auth-section[data-tone="dark"] .itc-deliverability-list-section h4 {
+  color: rgba(255, 255, 255, 0.74);
 }
 
 .itc-deliverability-findings {
@@ -352,6 +388,15 @@
   line-height: 1.05;
 }
 
+.itc-deliverability-locked-kicker {
+  margin: 0;
+  color: var(--itc-accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
 .itc-deliverability-button {
   display: inline-flex;
   align-items: center;
@@ -370,6 +415,10 @@
   white-space: pre-wrap;
   line-height: 1.6;
   font-family: inherit;
+}
+
+.itc-deliverability-footer-grid .itc-deliverability-simple-card + .itc-deliverability-simple-card {
+  border-left: 1px solid var(--itc-border);
 }
 
 .itc-deliverability-module .hs-form-field > label,
@@ -409,9 +458,16 @@
     font-size: 2.2rem;
   }
 
-  .itc-deliverability-summary-grid,
+  .itc-deliverability-findings-grid,
+  .itc-deliverability-auth-columns,
+  .itc-deliverability-footer-grid,
   .itc-deliverability-metric {
     grid-template-columns: 1fr;
+  }
+
+  .itc-deliverability-footer-grid .itc-deliverability-simple-card + .itc-deliverability-simple-card {
+    border-left: 0;
+    border-top: 1px solid var(--itc-border);
   }
 
   .itc-deliverability-dkim-overlay h4 {
