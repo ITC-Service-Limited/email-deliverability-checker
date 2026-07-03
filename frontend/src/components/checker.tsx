@@ -79,6 +79,11 @@ function lockedTone() {
   return { label: "Contact us", color: "var(--accent)", textColor: "#ffffff" };
 }
 
+function isDkimFinding(finding: Finding) {
+  const combined = `${finding.code} ${finding.message}`.toLowerCase();
+  return combined.includes("dkim") || combined.includes("selector");
+}
+
 export function Checker() {
   const [domain, setDomain] = useState("");
   const [result, setResult] = useState<ResponseData | null>(null);
@@ -118,6 +123,8 @@ export function Checker() {
       setLoading(false);
     }
   }
+
+  const visibleFindings = result?.findings.filter((finding) => !isDkimFinding(finding)) ?? [];
 
   return (
     <main
@@ -267,25 +274,27 @@ export function Checker() {
 
         {result ? (
           <section style={{ marginTop: 28, display: "grid", gap: 18 }}>
-            <OverviewRow result={result} />
-
-            <div style={panelStyle}>
-              <h2 style={headingStyle}>Findings</h2>
-              <div style={{ display: "grid", gap: 12 }}>
-                {result.findings.map((finding, index) => (
-                  <div
-                    key={`${finding.code}-${index}`}
-                    style={{
-                      borderLeft: `4px solid ${severityColor(finding.severity)}`,
-                      paddingLeft: 14
-                    }}
-                  >
-                    <strong style={{ textTransform: "capitalize" }}>{finding.severity}</strong>
-                    <p style={{ margin: "6px 0 0", color: "var(--muted)" }}>{finding.message}</p>
-                  </div>
-                ))}
+            {visibleFindings.length > 0 ? (
+              <div style={panelStyle}>
+                <h2 style={headingStyle}>Findings</h2>
+                <div style={{ display: "grid", gap: 12 }}>
+                  {visibleFindings.map((finding, index) => (
+                    <div
+                      key={`${finding.code}-${index}`}
+                      style={{
+                        borderLeft: `4px solid ${severityColor(finding.severity)}`,
+                        paddingLeft: 14
+                      }}
+                    >
+                      <strong style={{ textTransform: "capitalize" }}>{finding.severity}</strong>
+                      <p style={{ margin: "6px 0 0", color: "var(--muted)" }}>{finding.message}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            ) : null}
+
+            <OverviewRow result={result} />
 
             <div
               style={{
