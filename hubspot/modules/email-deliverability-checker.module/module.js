@@ -46,6 +46,71 @@
     return input ? input.value : "";
   }
 
+  function normalizeFieldValues(submissionValues) {
+    var values = {};
+    if (!Array.isArray(submissionValues)) return values;
+
+    submissionValues.forEach(function (field) {
+      if (!field || !field.name) return;
+      values[field.name] = field.value || "";
+    });
+
+    return values;
+  }
+
+  function looksLikeEmail(value) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || "").trim());
+  }
+
+  function looksLikeDomain(value) {
+    var cleaned = String(value || "").trim().toLowerCase();
+    return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(cleaned);
+  }
+
+  function getFallbackFieldValues(formElement) {
+    var values = {};
+    if (!formElement) return values;
+
+    var fields = formElement.querySelectorAll("input, textarea, select");
+    fields.forEach(function (field) {
+      if (!field.name) return;
+      if (field.type === "checkbox" || field.type === "radio") {
+        if (!field.checked) return;
+      }
+      values[field.name] = field.value || "";
+    });
+
+    return values;
+  }
+
+  function pickDomainValue(fieldValues, domainFieldName, emailFieldName) {
+    if (!fieldValues) return "";
+
+    var directDomain = extractDomain(fieldValues[domainFieldName]);
+    if (directDomain) return directDomain;
+
+    var directEmailDomain = extractDomain(fieldValues[emailFieldName]);
+    if (directEmailDomain) return directEmailDomain;
+
+    var domainCandidate = "";
+    var emailCandidate = "";
+
+    Object.keys(fieldValues).forEach(function (key) {
+      var rawValue = String(fieldValues[key] || "").trim();
+      if (!rawValue) return;
+
+      if (!emailCandidate && looksLikeEmail(rawValue)) {
+        emailCandidate = rawValue;
+      }
+
+      if (!domainCandidate && looksLikeDomain(rawValue)) {
+        domainCandidate = rawValue;
+      }
+    });
+
+    return extractDomain(domainCandidate || emailCandidate);
+  }
+
   function getFormElement(formArg) {
     if (!formArg) return null;
     if (formArg.jquery) return formArg[0] || null;
@@ -308,11 +373,21 @@
       portalId: portalId,
       formId: formId,
       target: '#' + targetId,
+      onBeforeFormSubmit: function ($form, submissionValues) {
+        var formElement = getFormElement($form);
+        var submittedValues = normalizeFieldValues(submissionValues);
+        var fallbackValues = getFallbackFieldValues(formElement);
+        var mergedValues = Object.assign({}, fallbackValues, submittedValues);
+        var pendingDomain = pickDomainValue(mergedValues, domainFieldName, emailFieldName);
+        root.setAttribute("data-pending-domain", pendingDomain);
+      },
       onFormSubmitted: function ($form) {
         var formElement = getFormElement($form);
-        var submittedDomain = extractDomain(getFieldValue(formElement, domainFieldName));
-        var submittedEmailDomain = extractDomain(getFieldValue(formElement, emailFieldName));
-        runCheck(root, submittedDomain || submittedEmailDomain);
+        var fallbackValues = getFallbackFieldValues(formElement);
+        var pendingDomain = root.getAttribute("data-pending-domain") || "";
+        var submittedDomain = pickDomainValue(fallbackValues, domainFieldName, emailFieldName);
+        runCheck(root, pendingDomain || submittedDomain);
+        root.removeAttribute("data-pending-domain");
       }
     });
   }
