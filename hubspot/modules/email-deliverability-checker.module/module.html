@@ -8,27 +8,33 @@
   data-loading-text="{{ module.loading_text|escape_attr }}"
   data-error-text="{{ module.error_text|escape_attr }}"
 >
-  <div class="itc-deliverability-shell">
-    <div class="itc-deliverability-intro">
-      <p class="itc-deliverability-eyebrow">ITC Service | Email deliverability checker</p>
-      <h2>{{ module.headline|replace('delivery problem', '<span class="itc-deliverability-accent-text">delivery problem</span>')|safe }}</h2>
-      <p>{{ module.description }}</p>
-    </div>
-
-    {% if module.portal_id and module.form_id %}
-      <div
-        class="itc-deliverability-form"
-        data-hs-form
-        data-portal-id="{{ module.portal_id|escape_attr }}"
-        data-form-id="{{ module.form_id|escape_attr }}"
-      ></div>
-    {% else %}
-      <div class="itc-deliverability-config-note">
-        Add the HubSpot portal ID and form ID in the module settings to load the checker form.
+  <div class="itc-deliverability-hero">
+    <div class="itc-deliverability-container">
+      <div class="itc-deliverability-intro">
+        <p class="itc-deliverability-eyebrow">ITC Service | Email deliverability checker</p>
+        <h2>{{ module.headline|replace('delivery problem', '<span class="itc-deliverability-accent-text">delivery problem</span>')|safe }}</h2>
+        <p>{{ module.description }}</p>
       </div>
-    {% endif %}
+    </div>
+  </div>
 
-    <div class="itc-deliverability-status" data-status hidden></div>
-    <div class="itc-deliverability-results" data-results hidden></div>
+  <div class="itc-deliverability-shell">
+    <div class="itc-deliverability-container">
+      {% if module.portal_id and module.form_id %}
+        <div
+          class="itc-deliverability-form"
+          data-hs-form
+          data-portal-id="{{ module.portal_id|escape_attr }}"
+          data-form-id="{{ module.form_id|escape_attr }}"
+        ></div>
+      {% else %}
+        <div class="itc-deliverability-config-note">
+          Add the HubSpot portal ID and form ID in the module settings to load the checker form.
+        </div>
+      {% endif %}
+
+      <div class="itc-deliverability-status" data-status hidden></div>
+      <div class="itc-deliverability-results" data-results hidden></div>
+    </div>
   </div>
 </section>
