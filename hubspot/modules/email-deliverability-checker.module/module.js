@@ -40,12 +40,6 @@
     return { label: "Needs review", color: "#b86b00" };
   }
 
-  function getFieldValue(formElement, fieldName) {
-    if (!formElement || !fieldName) return "";
-    var input = formElement.querySelector('[name="' + fieldName.replace(/"/g, '\\"') + '"]');
-    return input ? input.value : "";
-  }
-
   function normalizeFieldValues(submissionValues) {
     var values = {};
     if (!Array.isArray(submissionValues)) return values;
@@ -135,16 +129,16 @@
     return '<span class="itc-deliverability-badge" style="background:' + escapeHtml(color) + '">' + escapeHtml(label) + "</span>";
   }
 
-  function renderOverviewCard(title, value, detail, tone) {
+  function renderSummaryItem(title, value, detail, tone) {
     return [
-      '<article class="itc-deliverability-overview-card">',
+      '<div class="itc-deliverability-summary-item">',
+      '<div class="itc-deliverability-summary-label">' + escapeHtml(title) + '</div>',
       '<div class="itc-deliverability-card-head">',
-      '<h3>' + escapeHtml(title) + '</h3>',
+      '<div class="itc-deliverability-value">' + escapeHtml(value) + '</div>',
       createBadge(tone.label, tone.color),
       '</div>',
-      '<div class="itc-deliverability-value">' + escapeHtml(value) + '</div>',
       '<p class="itc-deliverability-detail">' + escapeHtml(detail) + '</p>',
-      '</article>'
+      '</div>'
     ].join('');
   }
 
@@ -175,10 +169,10 @@
     ].join('');
   }
 
-  function renderProtocolCard(title, data, sections, listSections) {
+  function renderProtocolSection(title, data, sections, listSections) {
     var tone = statusTone(Boolean(data.valid), Boolean(data.record));
     return [
-      '<article class="itc-deliverability-protocol">',
+      '<article class="itc-deliverability-auth-section">',
       '<div class="itc-deliverability-card-head">',
       '<h3>' + escapeHtml(title) + '</h3>',
       createBadge(tone.label, tone.color),
@@ -196,7 +190,7 @@
 
   function renderLockedDkimCard(contactUrl) {
     return [
-      '<article class="itc-deliverability-protocol">',
+      '<article class="itc-deliverability-auth-section">',
       '<div class="itc-deliverability-card-head">',
       '<h3>DKIM</h3>',
       createBadge('Contact us', '#e20512'),
@@ -258,28 +252,32 @@
 
     return [
       renderFindings(result.findings),
-      '<section class="itc-deliverability-overview">',
-      renderOverviewCard(
+      '<section class="itc-deliverability-auth-report">',
+      '<div class="itc-deliverability-auth-summary">',
+      '<h3>Authentication checks</h3>',
+      '<div class="itc-deliverability-summary-grid">',
+      renderSummaryItem(
         'SPF',
         result.spf.record ? 'Record found' : 'Missing',
         String(result.spf.lookup_count_estimate) + ' lookup-style mechanisms',
         spfTone
       ),
-      renderOverviewCard(
+      renderSummaryItem(
         'DKIM',
         'Expert review available',
         'Selector discovery, signing checks, and alignment validation handled by ITC.',
         { label: 'Contact us', color: '#e20512' }
       ),
-      renderOverviewCard(
+      renderSummaryItem(
         'DMARC',
         result.dmarc.policy ? 'Policy: ' + result.dmarc.policy : 'Missing',
         result.dmarc.aggregate_reporting_enabled ? 'Aggregate reports enabled' : 'No aggregate reporting',
         dmarcTone
       ),
-      '</section>',
-      '<section class="itc-deliverability-grid">',
-      renderProtocolCard('SPF', result.spf, [
+      '</div>',
+      '</div>',
+      '<div class="itc-deliverability-auth-sections">',
+      renderProtocolSection('SPF', result.spf, [
         { label: 'Lookup estimate', value: String(result.spf.lookup_count_estimate) + ' / 10' },
         { label: 'Policy ending', value: describeSpfAll(result.spf.all_qualifier) },
         { label: 'Redirect', value: result.spf.redirect || 'None' }
@@ -289,7 +287,7 @@
         { title: 'Issues', items: result.spf.issues || [] }
       ]),
       renderLockedDkimCard(contactUrl),
-      renderProtocolCard('DMARC', result.dmarc, [
+      renderProtocolSection('DMARC', result.dmarc, [
         { label: 'Policy', value: result.dmarc.policy || 'Missing' },
         { label: 'DKIM alignment', value: describeAlignment(result.dmarc.alignment_dkim) },
         { label: 'SPF alignment', value: describeAlignment(result.dmarc.alignment_spf) },
