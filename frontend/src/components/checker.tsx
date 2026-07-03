@@ -61,6 +61,7 @@ type ResponseData = {
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
+const CONTACT_URL = "https://itcservice.co.uk";
 
 function severityColor(severity: Finding["severity"]) {
   if (severity === "error") return "var(--error)";
@@ -72,6 +73,10 @@ function statusTone(valid: boolean, hasRecord: boolean) {
   if (!hasRecord) return { label: "Missing", color: "var(--error)", textColor: "#ffffff" };
   if (valid) return { label: "Healthy", color: "var(--ok)", textColor: "#ffffff" };
   return { label: "Needs review", color: "var(--warn)", textColor: "#ffffff" };
+}
+
+function lockedTone() {
+  return { label: "Contact us", color: "var(--accent)", textColor: "#ffffff" };
 }
 
 export function Checker() {
@@ -177,7 +182,7 @@ export function Checker() {
                 fontWeight: 700
               }}
             >
-              GitHub-first • Railway-ready • HubSpot-compatible
+              GitHub-first | Railway-ready | HubSpot-compatible
             </p>
             <h1
               style={{
@@ -325,37 +330,7 @@ export function Checker() {
                 ]}
               />
 
-              <ProtocolCard
-                title="DKIM"
-                tone={statusTone(result.dkim.valid, Boolean(result.dkim.record))}
-                record={result.dkim.record}
-                sections={[
-                  {
-                    label: "Selector host",
-                    value: result.dkim.host
-                  },
-                  {
-                    label: "Key type",
-                    value: result.dkim.key_type ?? "Unknown"
-                  },
-                  {
-                    label: "Estimated key size",
-                    value: result.dkim.key_size_bits
-                      ? `${result.dkim.key_size_bits} bits`
-                      : "Unknown"
-                  }
-                ]}
-                listSections={[
-                  {
-                    title: "Hash algorithms",
-                    items: result.dkim.hash_algorithms
-                  },
-                  {
-                    title: "Record tags",
-                    items: Object.entries(result.dkim.tags).map(([key, value]) => `${key}=${value}`)
-                  }
-                ]}
-              />
+              <LockedDkimCard />
 
               <ProtocolCard
                 title="DMARC"
@@ -444,9 +419,9 @@ function OverviewRow({ result }: { result: ResponseData }) {
       />
       <OverviewCard
         title="DKIM"
-        value={result.dkim.valid ? "Selector healthy" : result.dkim.record ? "Needs review" : "Missing"}
-        detail={result.dkim.key_size_bits ? `${result.dkim.key_size_bits} bit key estimate` : "Key size unknown"}
-        tone={statusTone(result.dkim.valid, Boolean(result.dkim.record))}
+        value="Expert review available"
+        detail="Selector discovery, signing checks, and alignment validation handled by ITC."
+        tone={lockedTone()}
       />
       <OverviewCard
         title="DMARC"
@@ -558,6 +533,62 @@ function ProtocolCard({
               </div>
             </div>
           ))}
+      </div>
+    </article>
+  );
+}
+
+function LockedDkimCard() {
+  return (
+    <article style={panelStyle}>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center" }}>
+        <h2 style={headingStyle}>DKIM</h2>
+        <span
+          style={{
+            background: "var(--accent)",
+            color: "#ffffff",
+            fontSize: 12,
+            fontWeight: 700,
+            letterSpacing: "0.06em",
+            textTransform: "uppercase",
+            padding: "4px 8px",
+            display: "inline-flex",
+            alignItems: "center"
+          }}
+        >
+          Contact us
+        </span>
+      </div>
+
+      <div style={lockedCardStyle}>
+        <div style={lockedBlurStyle} aria-hidden="true">
+          <div style={recordBoxStyle}>v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...</div>
+          <div style={{ display: "grid", gap: 12, marginTop: 16 }}>
+            <MetricRow label="Selector host">default._domainkey.example.com</MetricRow>
+            <MetricRow label="Key type">rsa</MetricRow>
+            <MetricRow label="Estimated key size">2048 bits</MetricRow>
+          </div>
+          <div style={{ display: "grid", gap: 16, marginTop: 18 }}>
+            <div>
+              <h3 style={subheadingStyle}>Hash algorithms</h3>
+              <div style={chipWrapStyle}>
+                <span style={chipStyle}>sha256</span>
+                <span style={chipStyle}>sha1</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style={lockedOverlayStyle}>
+          <p style={lockedEyebrowStyle}>Advanced check</p>
+          <h3 style={lockedTitleStyle}>DKIM review is handled directly by ITC</h3>
+          <p style={lockedCopyStyle}>
+            We validate selectors, signing keys, and alignment as part of a guided deliverability review.
+          </p>
+          <a href={CONTACT_URL} style={buttonLinkStyle}>
+            Contact us
+          </a>
+        </div>
       </div>
     </article>
   );
@@ -680,4 +711,69 @@ const chipStyle: React.CSSProperties = {
   maxWidth: "100%",
   wordBreak: "break-word",
   overflowWrap: "anywhere"
+};
+
+const lockedCardStyle: React.CSSProperties = {
+  position: "relative",
+  minHeight: 420,
+  border: "1px solid rgba(28, 28, 28, 0.12)",
+  background: "linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.72))",
+  overflow: "hidden"
+};
+
+const lockedBlurStyle: React.CSSProperties = {
+  padding: 18,
+  filter: "blur(8px)",
+  transform: "scale(1.02)",
+  transformOrigin: "center",
+  pointerEvents: "none",
+  userSelect: "none"
+};
+
+const lockedOverlayStyle: React.CSSProperties = {
+  position: "absolute",
+  inset: 0,
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "center",
+  alignItems: "flex-start",
+  gap: 12,
+  padding: 28,
+  background: "linear-gradient(180deg, rgba(28,28,28,0.1), rgba(28,28,28,0.68))",
+  color: "#ffffff"
+};
+
+const lockedEyebrowStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: 12,
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase"
+};
+
+const lockedTitleStyle: React.CSSProperties = {
+  margin: 0,
+  fontSize: 28,
+  lineHeight: 1.05,
+  fontFamily: "var(--title-font)"
+};
+
+const lockedCopyStyle: React.CSSProperties = {
+  margin: 0,
+  maxWidth: 420,
+  lineHeight: 1.6,
+  color: "rgba(255,255,255,0.9)"
+};
+
+const buttonLinkStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minHeight: 46,
+  padding: "0 18px",
+  background: "var(--accent)",
+  color: "#ffffff",
+  textDecoration: "none",
+  fontWeight: 700,
+  border: "1px solid var(--accent)"
 };
