@@ -445,6 +445,16 @@
   font-weight: 700;
 }
 
+.itc-deliverability-button:hover,
+.itc-deliverability-button:focus,
+.itc-deliverability-button:active,
+.itc-deliverability-button:visited {
+  background: var(--itc-accent);
+  border-color: var(--itc-accent);
+  color: #ffffff;
+  text-decoration: none;
+}
+
 .itc-deliverability-simple-card pre {
   margin: 0;
   white-space: pre-wrap;
