@@ -61,6 +61,16 @@
     return /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)+$/.test(cleaned);
   }
 
+  function findMatchingFieldValue(fieldValues, matcher) {
+    if (!fieldValues) return "";
+
+    var matchedKey = Object.keys(fieldValues).find(function (key) {
+      return matcher.test(String(key || "").toLowerCase());
+    });
+
+    return matchedKey ? String(fieldValues[matchedKey] || "").trim() : "";
+  }
+
   function getFallbackFieldValues(formElement) {
     var values = {};
     if (!formElement) return values;
@@ -86,23 +96,15 @@
     var directEmailDomain = extractDomain(fieldValues[emailFieldName]);
     if (directEmailDomain) return directEmailDomain;
 
-    var domainCandidate = "";
-    var emailCandidate = "";
+    var likelyDomainFieldValue = findMatchingFieldValue(fieldValues, /(domain|website|web_site|site|url)/);
+    var likelyDomain = looksLikeDomain(likelyDomainFieldValue) ? extractDomain(likelyDomainFieldValue) : "";
+    if (likelyDomain) return likelyDomain;
 
-    Object.keys(fieldValues).forEach(function (key) {
-      var rawValue = String(fieldValues[key] || "").trim();
-      if (!rawValue) return;
+    var likelyEmailFieldValue = findMatchingFieldValue(fieldValues, /email/);
+    var likelyEmailDomain = looksLikeEmail(likelyEmailFieldValue) ? extractDomain(likelyEmailFieldValue) : "";
+    if (likelyEmailDomain) return likelyEmailDomain;
 
-      if (!emailCandidate && looksLikeEmail(rawValue)) {
-        emailCandidate = rawValue;
-      }
-
-      if (!domainCandidate && looksLikeDomain(rawValue)) {
-        domainCandidate = rawValue;
-      }
-    });
-
-    return extractDomain(domainCandidate || emailCandidate);
+    return "";
   }
 
   function getFormElement(formArg) {
@@ -230,6 +232,7 @@
 
   function renderResults(result, contactUrl) {
     return [
+      '<div class="itc-deliverability-results-meta">Results for <strong>' + escapeHtml(result.domain || '') + '</strong></div>',
       renderFindings(result.findings),
       '<section class="itc-deliverability-section">',
       renderSectionHeader('Authentication checks', 'SPF, DKIM and DMARC at a glance.'),

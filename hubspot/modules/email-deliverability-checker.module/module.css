@@ -149,6 +149,17 @@
   padding-top: 8px;
 }
 
+.itc-deliverability-results-meta {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--itc-muted);
+}
+
+.itc-deliverability-results-meta strong {
+  color: var(--itc-dark);
+}
+
 .itc-deliverability-auth-columns,
 .itc-deliverability-footer-grid {
   display: grid;
