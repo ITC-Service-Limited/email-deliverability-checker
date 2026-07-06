@@ -87,7 +87,53 @@
     return values;
   }
 
-  function pickDomainValue(fieldValues, domainFieldName, emailFieldName) {
+  function getVisibleFieldCandidates(formElement) {
+    if (!formElement) return [];
+
+    var fields = formElement.querySelectorAll("input, textarea, select");
+    var candidates = [];
+
+    fields.forEach(function (field) {
+      if (!field || !field.name) return;
+      if (field.disabled) return;
+      if (field.type === "hidden") return;
+      if (field.type === "checkbox" || field.type === "radio") return;
+      if (field.type === "submit" || field.type === "button") return;
+
+      var rawValue = String(field.value || "").trim();
+      if (!rawValue) return;
+
+      candidates.push({
+        name: String(field.name || "").toLowerCase(),
+        type: String(field.type || field.tagName || "").toLowerCase(),
+        value: rawValue
+      });
+    });
+
+    return candidates;
+  }
+
+  function pickDomainFromVisibleFields(formElement) {
+    var candidates = getVisibleFieldCandidates(formElement);
+    if (!candidates.length) return "";
+
+    var preferredDomainCandidate = candidates.find(function (candidate) {
+      return /domain|website|web_site|site|url/.test(candidate.name) && looksLikeDomain(candidate.value);
+    });
+    if (preferredDomainCandidate) return extractDomain(preferredDomainCandidate.value);
+
+    var anyVisibleDomainCandidate = candidates.find(function (candidate) {
+      return candidate.type !== "email" && looksLikeDomain(candidate.value);
+    });
+    if (anyVisibleDomainCandidate) return extractDomain(anyVisibleDomainCandidate.value);
+
+    return "";
+  }
+
+  function pickDomainValue(fieldValues, domainFieldName, emailFieldName, formElement) {
+    var visibleFieldDomain = pickDomainFromVisibleFields(formElement);
+    if (visibleFieldDomain) return visibleFieldDomain;
+
     if (!fieldValues) return "";
 
     var directDomain = extractDomain(fieldValues[domainFieldName]);
@@ -339,14 +385,14 @@
         var submittedValues = normalizeFieldValues(submissionValues);
         var fallbackValues = getFallbackFieldValues(formElement);
         var mergedValues = Object.assign({}, fallbackValues, submittedValues);
-        var pendingDomain = pickDomainValue(mergedValues, domainFieldName, emailFieldName);
+        var pendingDomain = pickDomainValue(mergedValues, domainFieldName, emailFieldName, formElement);
         root.setAttribute("data-pending-domain", pendingDomain);
       },
       onFormSubmitted: function ($form) {
         var formElement = getFormElement($form);
         var fallbackValues = getFallbackFieldValues(formElement);
         var pendingDomain = root.getAttribute("data-pending-domain") || "";
-        var submittedDomain = pickDomainValue(fallbackValues, domainFieldName, emailFieldName);
+        var submittedDomain = pickDomainValue(fallbackValues, domainFieldName, emailFieldName, formElement);
         runCheck(root, pendingDomain || submittedDomain);
         root.removeAttribute("data-pending-domain");
       }
