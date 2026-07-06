@@ -289,6 +289,7 @@
         { label: 'Redirect', value: result.spf.redirect || 'None' }
       ], [
         { title: 'Includes', items: result.spf.includes || [] },
+        { title: 'Resolution tree', items: result.spf.resolution_tree || [] },
         { title: 'Mechanisms', items: result.spf.mechanisms || [] },
         { title: 'Issues', items: result.spf.issues || [] }
       ]),

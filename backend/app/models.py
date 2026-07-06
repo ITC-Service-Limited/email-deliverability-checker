@@ -50,6 +50,7 @@ class SpfResult(BaseModel):
     record: str | None = None
     lookup_count_estimate: int = 0
     includes: list[str] = Field(default_factory=list)
+    resolution_tree: list[str] = Field(default_factory=list)
     redirect: str | None = None
     all_qualifier: str | None = None
     mechanisms: list[str] = Field(default_factory=list)

@@ -1,3 +1,4 @@
+import app.services.dns_checks as dns_checks
 from app.services.dns_checks import (
     _estimate_spf_dns_lookups,
     _parse_dkim_record,
@@ -52,3 +53,38 @@ def test_estimate_spf_dns_lookups_counts_only_lookup_mechanisms() -> None:
     record = "v=spf1 ip4:203.0.113.0/24 include:_spf.example.com a mx -all"
 
     assert _estimate_spf_dns_lookups(record) == 3
+
+
+def test_parse_spf_record_expands_nested_include_lookups(monkeypatch) -> None:
+    records = {
+        "example.com": "v=spf1 a mx include:relay.example.com ~all",
+        "relay.example.com": "v=spf1 include:mail.example.net -all",
+        "mail.example.net": "v=spf1 ip4:203.0.113.20 -all",
+    }
+
+    monkeypatch.setattr(dns_checks, "_find_spf_record", lambda host: records.get(host))
+
+    parsed = _parse_spf_record(records["example.com"], domain="example.com")
+
+    assert parsed["lookup_count_estimate"] == 4
+    assert parsed["resolution_tree"] == [
+        "example.com: a (1 lookup)",
+        "example.com: mx (1 lookup)",
+        "example.com: include:relay.example.com (1 lookup)",
+        "relay.example.com: include:mail.example.net (1 lookup)",
+    ]
+    assert parsed["issues"] == []
+
+
+def test_parse_spf_record_flags_include_loops(monkeypatch) -> None:
+    records = {
+        "example.com": "v=spf1 include:loop.example.com -all",
+        "loop.example.com": "v=spf1 include:example.com -all",
+    }
+
+    monkeypatch.setattr(dns_checks, "_find_spf_record", lambda host: records.get(host))
+
+    parsed = _parse_spf_record(records["example.com"], domain="example.com")
+
+    assert parsed["lookup_count_estimate"] == 2
+    assert any("loop" in issue.lower() for issue in parsed["issues"])

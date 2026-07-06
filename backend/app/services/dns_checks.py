@@ -11,6 +11,7 @@ from app.models import DkimResult, DmarcResult, DnsRecordSet, Finding, SpfResult
 SPF_MECHANISM_RE = re.compile(r"^(?P<qualifier>[+?~-]?)(?P<name>all|include|a|mx|ptr|ip4|ip6|exists|redirect)(?:(?P<sep>[:=])(?P<value>.+))?$")
 VALID_DMARC_POLICIES = {"none", "quarantine", "reject"}
 VALID_DMARC_ALIGNMENT = {"r", "s"}
+SPF_LOOKUP_MECHANISMS = {"include", "a", "mx", "ptr", "exists", "redirect"}
 
 
 def _resolver() -> dns.resolver.Resolver:
@@ -37,11 +38,10 @@ def get_mx(domain: str) -> DnsRecordSet:
 
 
 def get_spf(domain: str) -> SpfResult:
-    txt_records = _lookup(domain, "TXT")
-    spf_record = next((record for record in txt_records if record.lower().startswith("v=spf1")), None)
+    spf_record = _find_spf_record(domain)
     if not spf_record:
         return SpfResult(host=domain)
-    parsed_spf = _parse_spf_record(spf_record)
+    parsed_spf = _parse_spf_record(spf_record, domain=domain)
     return SpfResult(host=domain, record=spf_record, **parsed_spf)
 
 
@@ -124,6 +124,11 @@ def _parse_tag_list(record: str) -> dict[str, str]:
     return tags
 
 
+def _find_spf_record(host: str) -> str | None:
+    txt_records = _lookup(host, "TXT")
+    return next((record for record in txt_records if record.lower().startswith("v=spf1")), None)
+
+
 def _estimate_spf_dns_lookups(record: str | None) -> int:
     if not record:
         return 0
@@ -133,7 +138,7 @@ def _estimate_spf_dns_lookups(record: str | None) -> int:
         if not match:
             continue
         name = match.group("name")
-        if name in {"include", "a", "mx", "ptr", "exists", "redirect"}:
+        if name in SPF_LOOKUP_MECHANISMS:
             count += 1
     return count
 
@@ -142,7 +147,51 @@ def _spf_tokens(record: str) -> list[str]:
     return [token for token in record.split() if token and not token.lower().startswith("v=spf1")]
 
 
-def _parse_spf_record(record: str) -> dict[str, object]:
+def _analyze_spf_resolution(host: str, record: str, visited: set[str] | None = None) -> tuple[int, list[str], list[str]]:
+    visited_hosts = set(visited or set())
+    normalized_host = host.lower().rstrip(".")
+    if normalized_host in visited_hosts:
+        return 0, [], [f"Detected an SPF include/redirect loop at `{host}`."]
+
+    visited_hosts.add(normalized_host)
+    total_lookups = 0
+    resolution_tree: list[str] = []
+    issues: list[str] = []
+
+    for token in _spf_tokens(record):
+        match = SPF_MECHANISM_RE.match(token)
+        if not match:
+            continue
+
+        name = match.group("name")
+        value = (match.group("value") or "").strip()
+        if name not in SPF_LOOKUP_MECHANISMS:
+            continue
+
+        total_lookups += 1
+        resolution_tree.append(f"{host}: {token} (1 lookup)")
+
+        if name not in {"include", "redirect"} or not value:
+            continue
+
+        nested_record = _find_spf_record(value)
+        if not nested_record:
+            issues.append(f"The SPF `{name}` target `{value}` did not return its own SPF TXT record.")
+            continue
+
+        nested_lookups, nested_tree, nested_issues = _analyze_spf_resolution(
+            value,
+            nested_record,
+            visited=visited_hosts,
+        )
+        total_lookups += nested_lookups
+        resolution_tree.extend(nested_tree)
+        issues.extend(nested_issues)
+
+    return total_lookups, resolution_tree, issues
+
+
+def _parse_spf_record(record: str, domain: str | None = None) -> dict[str, object]:
     mechanisms: list[str] = []
     includes: list[str] = []
     redirect: str | None = None
@@ -168,7 +217,13 @@ def _parse_spf_record(record: str) -> dict[str, object]:
         if name == "all":
             all_qualifier = qualifier
 
-    lookup_count = _estimate_spf_dns_lookups(record)
+    if domain:
+        lookup_count, resolution_tree, recursive_issues = _analyze_spf_resolution(domain, record)
+        issues.extend(recursive_issues)
+    else:
+        lookup_count = _estimate_spf_dns_lookups(record)
+        resolution_tree = []
+
     if lookup_count > 10:
         issues.append("This SPF record likely exceeds the RFC lookup limit of 10 DNS-mechanism evaluations.")
     if all_qualifier is None:
@@ -179,6 +234,7 @@ def _parse_spf_record(record: str) -> dict[str, object]:
     return {
         "lookup_count_estimate": lookup_count,
         "includes": includes,
+        "resolution_tree": resolution_tree,
         "redirect": redirect,
         "all_qualifier": all_qualifier,
         "mechanisms": mechanisms,

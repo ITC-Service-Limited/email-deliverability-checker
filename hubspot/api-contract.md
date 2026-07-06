@@ -42,6 +42,7 @@ frontend.
     "record": "v=spf1 include:_spf.example.com -all",
     "lookup_count_estimate": 1,
     "includes": ["_spf.example.com"],
+    "resolution_tree": ["itcservice.co.uk: include:_spf.example.com (1 lookup)"],
     "redirect": null,
     "all_qualifier": "-",
     "mechanisms": ["include:_spf.example.com", "-all"],

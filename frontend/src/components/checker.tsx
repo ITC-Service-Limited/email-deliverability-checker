@@ -20,6 +20,7 @@ type SpfData = {
   record: string | null;
   lookup_count_estimate: number;
   includes: string[];
+  resolution_tree: string[];
   redirect: string | null;
   all_qualifier: string | null;
   mechanisms: string[];
@@ -327,6 +328,10 @@ export function Checker() {
                   {
                     title: "Includes",
                     items: result.spf.includes
+                  },
+                  {
+                    title: "Resolution tree",
+                    items: result.spf.resolution_tree
                   },
                   {
                     title: "Mechanisms",
