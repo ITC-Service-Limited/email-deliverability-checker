@@ -145,14 +145,14 @@
 
 .itc-deliverability-results {
   display: grid;
-  gap: 34px;
+  gap: 52px;
   padding-top: 8px;
 }
 
 .itc-deliverability-auth-columns,
 .itc-deliverability-footer-grid {
   display: grid;
-  gap: 14px;
+  gap: 26px;
 }
 
 .itc-deliverability-auth-columns {
@@ -167,7 +167,7 @@
 .itc-deliverability-panel,
 .itc-deliverability-auth-section,
 .itc-deliverability-simple-card {
-  padding: 20px;
+  padding: 28px;
 }
 
 .itc-deliverability-panel h3,
@@ -181,12 +181,12 @@
 
 .itc-deliverability-section {
   display: grid;
-  gap: 14px;
+  gap: 22px;
 }
 
 .itc-deliverability-section-header {
   display: grid;
-  gap: 8px;
+  gap: 12px;
 }
 
 .itc-deliverability-kicker {
@@ -240,14 +240,14 @@
 
 .itc-deliverability-findings-grid {
   display: grid;
-  gap: 12px;
+  gap: 18px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .itc-deliverability-finding-card {
   display: grid;
-  gap: 6px;
-  padding: 14px 16px;
+  gap: 10px;
+  padding: 18px 20px;
   border: 1px solid var(--itc-border);
   background: #ffffff;
   border-left: 3px solid var(--itc-accent);
@@ -316,7 +316,7 @@
 }
 
 .itc-deliverability-record {
-  padding: 12px 14px;
+  padding: 16px 18px;
   border: 1px solid var(--itc-border);
   background: rgba(28, 28, 28, 0.03);
   line-height: 1.6;
@@ -326,8 +326,8 @@
 
 .itc-deliverability-metrics {
   display: grid;
-  gap: 10px;
-  margin-top: 14px;
+  gap: 14px;
+  margin-top: 20px;
 }
 
 .itc-deliverability-metric {
@@ -343,8 +343,8 @@
 
 .itc-deliverability-list-section {
   display: grid;
-  gap: 6px;
-  margin-top: 16px;
+  gap: 10px;
+  margin-top: 22px;
 }
 
 .itc-deliverability-list-section h4 {
@@ -358,12 +358,12 @@
 .itc-deliverability-chips {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 10px;
 }
 
 .itc-deliverability-chip {
   display: inline-block;
-  padding: 6px 9px;
+  padding: 8px 11px;
   border: 1px solid rgba(226, 5, 18, 0.18);
   background: var(--itc-soft);
   font-size: 13px;
