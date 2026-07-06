@@ -205,7 +205,7 @@
       '<p class="itc-deliverability-locked-kicker">Advanced check</p>',
       '<h4 style="margin:0; font-size:38px; line-height:1.02; max-width:360px;">DKIM review is handled directly by ITC.</h4>',
       '<p class="itc-deliverability-detail" style="max-width:360px;">We validate selectors, signing keys, and alignment as part of a guided deliverability review.</p>',
-      '<div style="margin-top:8px;"><a class="itc-deliverability-button" href="' + escapeHtml(contactUrl) + '">Contact us</a></div>',
+      '<div class="itc-deliverability-locked-action"><a class="itc-deliverability-button" href="' + escapeHtml(contactUrl) + '">Contact us</a></div>',
       '</article>'
     ].join('');
   }
