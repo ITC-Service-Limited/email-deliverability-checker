@@ -184,6 +184,12 @@
   padding: 28px;
 }
 
+.itc-deliverability-simple-card {
+  display: grid;
+  align-content: start;
+  gap: 20px;
+}
+
 .itc-deliverability-panel h3,
 .itc-deliverability-auth-section h3,
 .itc-deliverability-simple-card h3,
@@ -489,9 +495,9 @@
 .itc-deliverability-blacklist-summary {
   margin: 0;
   color: var(--itc-success);
-  font-size: 20px;
-  line-height: 1.35;
-  font-weight: 700;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 400;
   max-width: 440px;
 }
 
@@ -508,15 +514,15 @@
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
+  gap: 20px;
 }
 
 .itc-deliverability-blacklist-item {
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--itc-dark);
-  font-size: 16px;
+  color: var(--itc-muted);
+  font-size: 15px;
 }
 
 .itc-deliverability-blacklist-ips {

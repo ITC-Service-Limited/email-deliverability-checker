@@ -306,13 +306,16 @@
       '<h3>Blacklist status</h3>',
       createBadge(!hasChecks ? 'Unavailable' : listedCount ? 'Listed' : 'Clear', !hasChecks ? '#b86b00' : listedCount ? '#b86b00' : '#1c8b4b'),
       '</div>',
-      '<p class="itc-deliverability-blacklist-summary">' + escapeHtml(summary) + '</p>',
+      '<div class="itc-deliverability-record">' + escapeHtml(summary) + '</div>',
       (hasChecks ? [
+      '<div class="itc-deliverability-list-section">',
+      '<h4>Checked services</h4>',
       '<ul class="itc-deliverability-blacklist-list">',
       checks.map(function (check) {
-        return '<li class="itc-deliverability-blacklist-item"><span class="itc-deliverability-blacklist-item-icon" aria-hidden="true">' + (check.listed ? '!' : '✓') + '</span><span>' + escapeHtml(check.label) + '</span></li>';
+        return '<li class="itc-deliverability-blacklist-item"><span class="itc-deliverability-blacklist-item-icon" aria-hidden="true">' + (check.listed ? '!' : 'OK') + '</span><span>' + escapeHtml(check.label) + '</span></li>';
       }).join(''),
-      '</ul>'].join('') : ''),
+      '</ul>',
+      '</div>'].join('') : ''),
       '<div class="itc-deliverability-blacklist-ips"><span>Checked IPs:</span> ' + escapeHtml(checkedIps || 'None') + '</div>',
       '</article>'
     ].join('');
