@@ -1,6 +1,9 @@
 .itc-deliverability-module {
   --itc-dark: #1c1c1c;
   --itc-accent: #e20512;
+  --itc-success: #1c8b4b;
+  --itc-warning: #b86b00;
+  --itc-error: #e20512;
   --itc-border: rgba(28, 28, 28, 0.12);
   --itc-muted: rgba(28, 28, 28, 0.68);
   --itc-muted-light: rgba(255, 255, 255, 0.72);
@@ -270,6 +273,30 @@
   letter-spacing: 0.12em;
   color: var(--itc-accent);
   font-weight: 700;
+}
+
+.itc-deliverability-finding-card[data-severity="info"] {
+  border-left-color: var(--itc-success);
+}
+
+.itc-deliverability-finding-card[data-severity="info"] .itc-deliverability-finding-label {
+  color: var(--itc-success);
+}
+
+.itc-deliverability-finding-card[data-severity="warning"] {
+  border-left-color: var(--itc-warning);
+}
+
+.itc-deliverability-finding-card[data-severity="warning"] .itc-deliverability-finding-label {
+  color: var(--itc-warning);
+}
+
+.itc-deliverability-finding-card[data-severity="error"] {
+  border-left-color: var(--itc-error);
+}
+
+.itc-deliverability-finding-card[data-severity="error"] .itc-deliverability-finding-label {
+  color: var(--itc-error);
 }
 
 .itc-deliverability-detail,

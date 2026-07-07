@@ -179,7 +179,7 @@
 
   function renderFindingCard(finding) {
     return [
-      '<div class="itc-deliverability-finding-card">',
+      '<div class="itc-deliverability-finding-card" data-severity="' + escapeHtml(finding.severity) + '">',
       '<div class="itc-deliverability-finding-label">' + escapeHtml(finding.severity) + '</div>',
       '<p class="itc-deliverability-detail">' + escapeHtml(finding.message) + '</p>',
       '</div>'
