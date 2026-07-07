@@ -6,12 +6,20 @@ import re
 import dns.exception
 import dns.resolver
 
-from app.models import DkimResult, DmarcResult, DnsRecordSet, Finding, SpfResult
+from app.models import BimiResult, BlacklistCheck, BlacklistResult, DkimResult, DmarcResult, DnsRecordSet, Finding, SpfResult
 
 SPF_MECHANISM_RE = re.compile(r"^(?P<qualifier>[+?~-]?)(?P<name>all|include|a|mx|ptr|ip4|ip6|exists|redirect)(?:(?P<sep>[:=])(?P<value>.+))?$")
 VALID_DMARC_POLICIES = {"none", "quarantine", "reject"}
 VALID_DMARC_ALIGNMENT = {"r", "s"}
 SPF_LOOKUP_MECHANISMS = {"include", "a", "mx", "ptr", "exists", "redirect"}
+BLACKLIST_ZONES = [
+    ("zen.spamhaus.org", "Spamhaus ZEN"),
+    ("b.barracudacentral.org", "Barracuda"),
+    ("bl.spamcop.net", "SpamCop"),
+    ("dnsbl.sorbs.net", "SORBS"),
+    ("psbl.surriel.com", "PSBL"),
+    ("rep.mailspike.net", "Mailspike"),
+]
 
 
 def _resolver() -> dns.resolver.Resolver:
@@ -65,12 +73,91 @@ def get_dkim(domain: str, selector: str) -> DkimResult:
     return DkimResult(host=host, record=dkim_record, **parsed_dkim)
 
 
+def get_bimi(domain: str) -> BimiResult:
+    host = f"default._bimi.{domain}"
+    txt_records = _lookup(host, "TXT")
+    bimi_record = next((record for record in txt_records if record.lower().startswith("v=bimi1")), None)
+    if not bimi_record:
+        return BimiResult(host=host)
+
+    tags = _parse_tag_list(bimi_record)
+    valid = tags.get("v", "").upper() == "BIMI1" and bool(tags.get("l"))
+    return BimiResult(host=host, record=bimi_record, tags=tags, valid=valid)
+
+
+def get_blacklist_status(mx: DnsRecordSet) -> BlacklistResult:
+    mx_hosts = _extract_mx_hosts(mx.values)
+    ipv4_addresses: list[str] = []
+
+    for host in mx_hosts:
+        for address in _lookup(host, "A"):
+            if address not in ipv4_addresses:
+                ipv4_addresses.append(address)
+
+    checks: list[BlacklistCheck] = []
+    for zone, label in BLACKLIST_ZONES:
+        listed = any(_is_ipv4_listed(ip, zone) for ip in ipv4_addresses)
+        checks.append(BlacklistCheck(zone=zone, label=label, listed=listed))
+
+    return BlacklistResult(
+        checked_hosts=mx_hosts,
+        checked_ipv4_addresses=ipv4_addresses,
+        checks=checks,
+    )
+
+
+def build_cross_record_validations(mx: DnsRecordSet, spf: SpfResult, dmarc: DmarcResult, bimi: BimiResult) -> list[Finding]:
+    validations: list[Finding] = []
+    mx_hosts = [value.lower() for value in _extract_mx_hosts(mx.values)]
+    spf_record = (spf.record or "").lower()
+
+    if any("icloud.com" in host for host in mx_hosts) and "icloud.com" not in spf_record:
+        validations.append(
+            Finding(
+                severity="warning",
+                code="mx_spf_icloud_mismatch",
+                message="MX points to Apple iCloud, but the SPF record does not explicitly reference iCloud sending infrastructure.",
+            )
+        )
+
+    if dmarc.alignment_spf == "s":
+        validations.append(
+            Finding(
+                severity="warning",
+                code="dmarc_strict_spf_alignment",
+                message="DMARC uses strict SPF alignment (`aspf=s`), so subdomain mail needs carefully matched SPF identities.",
+            )
+        )
+
+    if dmarc.alignment_dkim == "s":
+        validations.append(
+            Finding(
+                severity="warning",
+                code="dmarc_strict_dkim_alignment",
+                message="DMARC uses strict DKIM alignment (`adkim=s`), so DKIM signatures must match the exact From domain.",
+            )
+        )
+
+    if dmarc.policy in {"quarantine", "reject"} and not bimi.record:
+        validations.append(
+            Finding(
+                severity="info",
+                code="bimi_not_configured",
+                message="DMARC enforcement is in place, so this domain is eligible to add BIMI if brand-display support is wanted.",
+            )
+        )
+
+    return validations
+
+
 def build_findings(
     nameservers: DnsRecordSet,
     mx: DnsRecordSet,
     spf: SpfResult,
     dkim: DkimResult,
     dmarc: DmarcResult,
+    bimi: BimiResult,
+    blacklist: BlacklistResult,
 ) -> list[Finding]:
     findings: list[Finding] = []
 
@@ -79,6 +166,12 @@ def build_findings(
 
     if not mx.values:
         findings.append(Finding(severity="warning", code="mx_missing", message="No MX records were found. Some domains can still receive mail via A/AAAA fallback, but this is usually a deliverability risk."))
+
+    if blacklist.checks:
+        if any(check.listed for check in blacklist.checks):
+            findings.append(Finding(severity="warning", code="blacklist_listed", message="One or more checked blacklist services reported a listing for the MX infrastructure."))
+        else:
+            findings.append(Finding(severity="info", code="blacklist_clear", message="No listings were found on the checked blacklist services."))
 
     if not spf.record:
         findings.append(Finding(severity="error", code="spf_missing", message="No SPF record was found."))
@@ -111,6 +204,13 @@ def build_findings(
         if "rua" not in dmarc.tags:
             findings.append(Finding(severity="warning", code="dmarc_rua_missing", message="The DMARC record does not include a rua tag for aggregate reporting."))
 
+    if not bimi.record:
+        findings.append(Finding(severity="warning", code="bimi_missing", message="No BIMI record was found at the default selector."))
+    elif not bimi.valid:
+        findings.append(Finding(severity="warning", code="bimi_invalid", message="A BIMI record was found, but it is missing recommended tags or appears malformed."))
+    else:
+        findings.append(Finding(severity="info", code="bimi_present", message="A BIMI record was found at the default selector."))
+
     return findings
 
 
@@ -127,6 +227,28 @@ def _parse_tag_list(record: str) -> dict[str, str]:
 def _find_spf_record(host: str) -> str | None:
     txt_records = _lookup(host, "TXT")
     return next((record for record in txt_records if record.lower().startswith("v=spf1")), None)
+
+
+def _extract_mx_hosts(values: list[str]) -> list[str]:
+    hosts: list[str] = []
+    for value in values:
+        parts = value.split()
+        host = parts[-1].rstrip(".") if parts else ""
+        if host and host not in hosts:
+            hosts.append(host)
+    return hosts
+
+
+def _reverse_ipv4(ip_address: str) -> str:
+    return ".".join(reversed(ip_address.split(".")))
+
+
+def _is_ipv4_listed(ip_address: str, zone: str) -> bool:
+    query = f"{_reverse_ipv4(ip_address)}.{zone}"
+    try:
+        return bool(_resolver().resolve(query, "A"))
+    except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.exception.Timeout):
+        return False
 
 
 def _estimate_spf_dns_lookups(record: str | None) -> int:

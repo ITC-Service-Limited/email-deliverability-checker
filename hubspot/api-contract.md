@@ -74,11 +74,35 @@ frontend.
     "aggregate_reporting_enabled": true,
     "valid": true
   },
+  "bimi": {
+    "host": "default._bimi.itcservice.co.uk",
+    "record": null,
+    "tags": {},
+    "valid": false
+  },
+  "blacklist": {
+    "checked_hosts": ["mx1.example.com"],
+    "checked_ipv4_addresses": ["203.0.113.20"],
+    "checks": [
+      {
+        "zone": "zen.spamhaus.org",
+        "label": "Spamhaus ZEN",
+        "listed": false
+      }
+    ]
+  },
   "findings": [
     {
       "severity": "info",
       "code": "spf_present",
       "message": "An SPF record was found."
+    }
+  ],
+  "cross_record_validations": [
+    {
+      "severity": "warning",
+      "code": "dmarc_strict_spf_alignment",
+      "message": "DMARC uses strict SPF alignment (`aspf=s`), so subdomain mail needs carefully matched SPF identities."
     }
   ]
 }
@@ -91,6 +115,9 @@ frontend.
 - SPF status and issues
 - DMARC policy and reporting status
 - MX and nameserver values
+- BIMI presence/status
+- blacklist status
+- cross-record validation messages
 - findings summary
 
 ### Hide or Lock

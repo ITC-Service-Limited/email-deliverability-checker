@@ -18,6 +18,25 @@ class DnsRecordSet(BaseModel):
     values: list[str] = Field(default_factory=list)
 
 
+class BimiResult(BaseModel):
+    host: str
+    record: str | None = None
+    tags: dict[str, str] = Field(default_factory=dict)
+    valid: bool = False
+
+
+class BlacklistCheck(BaseModel):
+    zone: str
+    label: str
+    listed: bool = False
+
+
+class BlacklistResult(BaseModel):
+    checked_hosts: list[str] = Field(default_factory=list)
+    checked_ipv4_addresses: list[str] = Field(default_factory=list)
+    checks: list[BlacklistCheck] = Field(default_factory=list)
+
+
 class DomainCheckRequest(BaseModel):
     domain: str = Field(min_length=3, max_length=255)
 
@@ -65,4 +84,7 @@ class DomainCheckResponse(BaseModel):
     spf: SpfResult
     dkim: DkimResult
     dmarc: DmarcResult
+    bimi: BimiResult
+    blacklist: BlacklistResult
     findings: list[Finding] = Field(default_factory=list)
+    cross_record_validations: list[Finding] = Field(default_factory=list)

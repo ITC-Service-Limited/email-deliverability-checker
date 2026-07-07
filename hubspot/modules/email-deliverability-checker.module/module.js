@@ -276,10 +276,66 @@
     ].join('');
   }
 
+  function renderCrossRecordValidations(validations) {
+    if (!validations || !validations.length) return '';
+
+    return [
+      '<section class="itc-deliverability-section">',
+      renderSectionHeader('Cross-record validation', 'How these records work together.'),
+      '<div class="itc-deliverability-findings-grid">',
+      validations.map(renderFindingCard).join(''),
+      '</div>',
+      '</section>'
+    ].join('');
+  }
+
+  function renderBlacklistCard(blacklist) {
+    var checks = blacklist && blacklist.checks ? blacklist.checks : [];
+    var listedCount = checks.filter(function (check) { return check.listed; }).length;
+    var statusLabel = listedCount ? 'Listed' : 'Clear';
+    var statusColor = listedCount ? '#b86b00' : '#1c8b4b';
+    var summary = listedCount
+      ? listedCount + ' checked blacklist service(s) reported a listing.'
+      : 'No listings were found on the checked blacklist services.';
+
+    return [
+      '<article class="itc-deliverability-simple-card">',
+      '<div class="itc-deliverability-card-head">',
+      '<h3>Blacklist status</h3>',
+      createBadge(statusLabel, statusColor),
+      '</div>',
+      '<div class="itc-deliverability-detail">' + escapeHtml(summary) + '</div>',
+      renderListSection('Checked services', checks.map(function (check) {
+        return check.label + ': ' + (check.listed ? 'Listed' : 'Clear');
+      })),
+      renderListSection('Checked MX hosts', blacklist.checked_hosts || []),
+      renderListSection('Checked IPv4 addresses', blacklist.checked_ipv4_addresses || []),
+      '</article>'
+    ].join('');
+  }
+
+  function renderBimiCard(bimi) {
+    var tone = statusTone(Boolean(bimi.valid), Boolean(bimi.record));
+
+    return [
+      '<article class="itc-deliverability-simple-card">',
+      '<div class="itc-deliverability-card-head">',
+      '<h3>BIMI</h3>',
+      createBadge(tone.label, tone.color),
+      '</div>',
+      '<div class="itc-deliverability-record">' + escapeHtml(bimi.record || 'No BIMI record found at the default selector.') + '</div>',
+      renderListSection('Record tags', Object.keys(bimi.tags || {}).map(function (key) {
+        return key + '=' + bimi.tags[key];
+      })),
+      '</article>'
+    ].join('');
+  }
+
   function renderResults(result, contactUrl) {
     return [
       '<div class="itc-deliverability-results-meta">Results for <strong>' + escapeHtml(result.domain || '') + '</strong></div>',
       renderFindings(result.findings),
+      renderCrossRecordValidations(result.cross_record_validations),
       '<section class="itc-deliverability-section">',
       renderSectionHeader('Authentication checks', 'SPF, DKIM and DMARC at a glance.'),
       '<div class="itc-deliverability-auth-columns">',
@@ -309,6 +365,10 @@
       '<section class="itc-deliverability-footer-grid">',
       '<article class="itc-deliverability-simple-card"><h3>Nameservers</h3><pre>' + escapeHtml((result.nameservers.values || []).join('\n') || 'No nameservers returned.') + '</pre></article>',
       '<article class="itc-deliverability-simple-card"><h3>MX</h3><pre>' + escapeHtml((result.mx.values || []).join('\n') || 'No MX records returned.') + '</pre></article>',
+      '</section>',
+      '<section class="itc-deliverability-footer-grid">',
+      renderBimiCard(result.bimi || {}),
+      renderBlacklistCard(result.blacklist || {}),
       '</section>'
     ].filter(Boolean).join('');
   }

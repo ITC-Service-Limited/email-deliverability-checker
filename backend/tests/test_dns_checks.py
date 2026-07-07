@@ -1,9 +1,13 @@
 import app.services.dns_checks as dns_checks
+from app.models import BimiResult, BlacklistCheck, BlacklistResult, DkimResult, DmarcResult, DnsRecordSet, SpfResult
 from app.services.dns_checks import (
+    _extract_mx_hosts,
     _estimate_spf_dns_lookups,
     _parse_dkim_record,
     _parse_dmarc_record,
     _parse_spf_record,
+    build_cross_record_validations,
+    build_findings,
 )
 
 
@@ -88,3 +92,79 @@ def test_parse_spf_record_flags_include_loops(monkeypatch) -> None:
 
     assert parsed["lookup_count_estimate"] == 2
     assert any("loop" in issue.lower() for issue in parsed["issues"])
+
+
+def test_extract_mx_hosts_strips_priorities_and_trailing_dots() -> None:
+    values = ["10 mx01.mail.icloud.com.", "20 mx02.mail.icloud.com."]
+
+    assert _extract_mx_hosts(values) == ["mx01.mail.icloud.com", "mx02.mail.icloud.com"]
+
+
+def test_cross_record_validation_flags_icloud_spf_gap_and_strict_alignment() -> None:
+    mx = DnsRecordSet(
+        host="example.com",
+        record_type="MX",
+        values=["10 mx01.mail.icloud.com.", "10 mx02.mail.icloud.com."],
+    )
+    spf = SpfResult(host="example.com", record="v=spf1 include:relay.example.net ~all")
+    dmarc = DmarcResult(
+        host="_dmarc.example.com",
+        record="v=DMARC1; p=none; adkim=s; aspf=s",
+        policy="none",
+        alignment_dkim="s",
+        alignment_spf="s",
+        valid=True,
+    )
+    bimi = BimiResult(host="default._bimi.example.com")
+
+    validations = build_cross_record_validations(mx, spf, dmarc, bimi)
+
+    codes = {item.code for item in validations}
+    assert "mx_spf_icloud_mismatch" in codes
+    assert "dmarc_strict_spf_alignment" in codes
+    assert "dmarc_strict_dkim_alignment" in codes
+
+
+def test_cross_record_validation_suggests_bimi_when_dmarc_is_enforced() -> None:
+    mx = DnsRecordSet(host="example.com", record_type="MX", values=[])
+    spf = SpfResult(host="example.com", record="v=spf1 -all")
+    dmarc = DmarcResult(
+        host="_dmarc.example.com",
+        record="v=DMARC1; p=reject",
+        policy="reject",
+        alignment_dkim="r",
+        alignment_spf="r",
+        valid=True,
+    )
+    bimi = BimiResult(host="default._bimi.example.com")
+
+    validations = build_cross_record_validations(mx, spf, dmarc, bimi)
+
+    assert any(item.code == "bimi_not_configured" for item in validations)
+
+
+def test_build_findings_includes_blacklist_and_bimi_states() -> None:
+    nameservers = DnsRecordSet(host="example.com", record_type="NS", values=["ns1.example.com."])
+    mx = DnsRecordSet(host="example.com", record_type="MX", values=["10 mx1.example.com."])
+    spf = SpfResult(host="example.com", record="v=spf1 -all", valid=True)
+    dkim = DkimResult(host="default._domainkey.example.com")
+    dmarc = DmarcResult(
+        host="_dmarc.example.com",
+        record="v=DMARC1; p=none",
+        policy="none",
+        alignment_dkim="r",
+        alignment_spf="r",
+        valid=True,
+    )
+    bimi = BimiResult(host="default._bimi.example.com")
+    blacklist = BlacklistResult(
+        checked_hosts=["mx1.example.com"],
+        checked_ipv4_addresses=["203.0.113.20"],
+        checks=[BlacklistCheck(zone="zen.spamhaus.org", label="Spamhaus ZEN", listed=False)],
+    )
+
+    findings = build_findings(nameservers, mx, spf, dkim, dmarc, bimi, blacklist)
+
+    codes = {item.code for item in findings}
+    assert "blacklist_clear" in codes
+    assert "bimi_missing" in codes

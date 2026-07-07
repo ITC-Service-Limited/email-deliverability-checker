@@ -15,6 +15,25 @@ type RecordSet = {
   values: string[];
 };
 
+type BimiData = {
+  host: string;
+  record: string | null;
+  tags: Record<string, string>;
+  valid: boolean;
+};
+
+type BlacklistCheck = {
+  zone: string;
+  label: string;
+  listed: boolean;
+};
+
+type BlacklistData = {
+  checked_hosts: string[];
+  checked_ipv4_addresses: string[];
+  checks: BlacklistCheck[];
+};
+
 type SpfData = {
   host: string;
   record: string | null;
@@ -58,7 +77,10 @@ type ResponseData = {
   spf: SpfData;
   dkim: DkimData;
   dmarc: DmarcData;
+  bimi: BimiData;
+  blacklist: BlacklistData;
   findings: Finding[];
+  cross_record_validations: Finding[];
 };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
@@ -126,6 +148,7 @@ export function Checker() {
   }
 
   const visibleFindings = result?.findings.filter((finding) => !isDkimFinding(finding)) ?? [];
+  const crossRecordValidations = result?.cross_record_validations ?? [];
 
   return (
     <main
@@ -295,6 +318,26 @@ export function Checker() {
               </div>
             ) : null}
 
+            {crossRecordValidations.length > 0 ? (
+              <div style={panelStyle}>
+                <h2 style={headingStyle}>Cross-record validation</h2>
+                <div style={{ display: "grid", gap: 12 }}>
+                  {crossRecordValidations.map((finding, index) => (
+                    <div
+                      key={`${finding.code}-${index}`}
+                      style={{
+                        borderLeft: `4px solid ${severityColor(finding.severity)}`,
+                        paddingLeft: 14
+                      }}
+                    >
+                      <strong style={{ textTransform: "capitalize" }}>{finding.severity}</strong>
+                      <p style={{ margin: "6px 0 0", color: "var(--muted)" }}>{finding.message}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+
             <OverviewRow result={result} />
 
             <div
@@ -405,6 +448,31 @@ export function Checker() {
                 title="MX"
                 body={
                   result.mx.values.length ? result.mx.values.join("\n") : "No MX records returned."
+                }
+                preformatted
+              />
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gap: 18,
+                gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))"
+              }}
+            >
+              <SimpleCard
+                title="BIMI"
+                body={result.bimi.record ?? "No BIMI record found at the default selector."}
+                preformatted
+              />
+              <SimpleCard
+                title="Blacklist status"
+                body={
+                  result.blacklist.checks.length
+                    ? result.blacklist.checks
+                        .map((check) => `${check.label}: ${check.listed ? "Listed" : "Clear"}`)
+                        .join("\n")
+                    : "No blacklist checks were run."
                 }
                 preformatted
               />
