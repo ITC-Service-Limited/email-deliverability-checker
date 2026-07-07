@@ -44,6 +44,7 @@ class DomainCheckRequest(BaseModel):
 class DmarcResult(BaseModel):
     host: str
     record: str | None = None
+    records: list[str] = Field(default_factory=list)
     tags: dict[str, str] = Field(default_factory=dict)
     policy: str | None = None
     subdomain_policy: str | None = None

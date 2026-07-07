@@ -8,6 +8,7 @@ from app.services.dns_checks import (
     _parse_spf_record,
     build_cross_record_validations,
     build_findings,
+    get_dmarc,
 )
 
 
@@ -168,3 +169,27 @@ def test_build_findings_includes_blacklist_and_bimi_states() -> None:
     codes = {item.code for item in findings}
     assert "blacklist_clear" in codes
     assert "bimi_missing" in codes
+
+
+def test_get_dmarc_prefers_fullest_record_and_flags_duplicates(monkeypatch) -> None:
+    records = [
+        "v=DMARC1; p=none;",
+        "v=DMARC1; p=none; rua=mailto:dmarc@example.com; fo=1; adkim=s; aspf=s",
+    ]
+
+    monkeypatch.setattr(dns_checks, "_lookup", lambda host, record_type: records if host == "_dmarc.example.com" and record_type == "TXT" else [])
+
+    dmarc = get_dmarc("example.com")
+    findings = build_findings(
+        DnsRecordSet(host="example.com", record_type="NS", values=["ns1.example.com."]),
+        DnsRecordSet(host="example.com", record_type="MX", values=["10 mx1.example.com."]),
+        SpfResult(host="example.com", record="v=spf1 -all", valid=True),
+        DkimResult(host="default._domainkey.example.com"),
+        dmarc,
+        BimiResult(host="default._bimi.example.com"),
+        BlacklistResult(),
+    )
+
+    assert dmarc.record == records[1]
+    assert dmarc.records == records
+    assert any(item.code == "dmarc_multiple_records" for item in findings)

@@ -56,11 +56,12 @@ def get_spf(domain: str) -> SpfResult:
 def get_dmarc(domain: str) -> DmarcResult:
     host = f"_dmarc.{domain}"
     txt_records = _lookup(host, "TXT")
-    dmarc_record = next((record for record in txt_records if record.lower().startswith("v=dmarc1")), None)
-    if not dmarc_record:
+    dmarc_records = [record for record in txt_records if record.lower().startswith("v=dmarc1")]
+    if not dmarc_records:
         return DmarcResult(host=host)
+    dmarc_record = max(dmarc_records, key=len)
     parsed_dmarc = _parse_dmarc_record(dmarc_record)
-    return DmarcResult(host=host, record=dmarc_record, **parsed_dmarc)
+    return DmarcResult(host=host, record=dmarc_record, records=dmarc_records, **parsed_dmarc)
 
 
 def get_dkim(domain: str, selector: str) -> DkimResult:
@@ -197,6 +198,8 @@ def build_findings(
     else:
         policy = dmarc.tags.get("p", "missing")
         findings.append(Finding(severity="info", code="dmarc_present", message=f"A DMARC record was found with policy `{policy}`."))
+        if len(dmarc.records) > 1:
+            findings.append(Finding(severity="error", code="dmarc_multiple_records", message="Multiple DMARC TXT records were found. DMARC should publish a single record at `_dmarc`."))        
         if not dmarc.valid:
             findings.append(Finding(severity="warning", code="dmarc_invalid", message="The DMARC record was found, but one or more required tags look invalid."))
         if dmarc.policy == "none":
