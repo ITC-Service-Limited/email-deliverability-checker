@@ -292,24 +292,23 @@
   function renderBlacklistCard(blacklist) {
     var checks = blacklist && blacklist.checks ? blacklist.checks : [];
     var listedCount = checks.filter(function (check) { return check.listed; }).length;
-    var statusLabel = listedCount ? 'Listed' : 'Clear';
-    var statusColor = listedCount ? '#b86b00' : '#1c8b4b';
     var summary = listedCount
-      ? listedCount + ' checked blacklist service(s) reported a listing.'
-      : 'No listings were found on the checked blacklist services.';
+      ? 'Found on ' + listedCount + ' of ' + checks.length + ' blacklist' + (checks.length === 1 ? '' : 's') + ' checked'
+      : 'Not found on any of ' + checks.length + ' blacklist' + (checks.length === 1 ? '' : 's') + ' checked';
 
     return [
-      '<article class="itc-deliverability-simple-card">',
-      '<div class="itc-deliverability-card-head">',
-      '<h3>Blacklist status</h3>',
-      createBadge(statusLabel, statusColor),
+      '<article class="itc-deliverability-blacklist-card" data-listed="' + (listedCount ? 'true' : 'false') + '">',
+      '<div class="itc-deliverability-blacklist-domain-row">',
+      '<span class="itc-deliverability-blacklist-icon" aria-hidden="true">' + (listedCount ? '!' : '✓') + '</span>',
+      '<h3>' + escapeHtml((blacklist.checked_hosts && blacklist.checked_hosts[0]) || 'Blacklist status') + '</h3>',
       '</div>',
-      '<div class="itc-deliverability-detail">' + escapeHtml(summary) + '</div>',
-      renderListSection('Checked services', checks.map(function (check) {
-        return check.label + ': ' + (check.listed ? 'Listed' : 'Clear');
-      })),
-      renderListSection('Checked MX hosts', blacklist.checked_hosts || []),
-      renderListSection('Checked IPv4 addresses', blacklist.checked_ipv4_addresses || []),
+      '<p class="itc-deliverability-blacklist-summary">' + escapeHtml(summary) + '</p>',
+      '<ul class="itc-deliverability-blacklist-list">',
+      checks.map(function (check) {
+        return '<li class="itc-deliverability-blacklist-item"><span class="itc-deliverability-blacklist-item-icon" aria-hidden="true">' + (check.listed ? '!' : '✓') + '</span><span>' + escapeHtml(check.label) + '</span></li>';
+      }).join(''),
+      '</ul>',
+      '<div class="itc-deliverability-blacklist-ips"><span>Checked IPs:</span> ' + escapeHtml((blacklist.checked_ipv4_addresses || []).join(', ') || 'None') + '</div>',
       '</article>'
     ].join('');
   }

@@ -461,6 +461,86 @@
   line-height: 1.05;
 }
 
+.itc-deliverability-blacklist-card {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border: 1px solid var(--itc-border);
+  background: #ffffff;
+  box-shadow: var(--itc-shadow);
+}
+
+.itc-deliverability-blacklist-domain-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.itc-deliverability-blacklist-domain-row h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.itc-deliverability-blacklist-icon,
+.itc-deliverability-blacklist-item-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: 1px solid currentColor;
+  color: var(--itc-success);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  flex: 0 0 auto;
+}
+
+.itc-deliverability-blacklist-card[data-listed="true"] .itc-deliverability-blacklist-icon,
+.itc-deliverability-blacklist-card[data-listed="true"] .itc-deliverability-blacklist-item-icon {
+  color: var(--itc-warning);
+}
+
+.itc-deliverability-blacklist-summary {
+  margin: 0;
+  color: var(--itc-success);
+  font-size: 28px;
+  line-height: 1.2;
+  font-weight: 600;
+  max-width: 520px;
+}
+
+.itc-deliverability-blacklist-card[data-listed="true"] .itc-deliverability-blacklist-summary {
+  color: var(--itc-warning);
+}
+
+.itc-deliverability-blacklist-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.itc-deliverability-blacklist-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--itc-dark);
+}
+
+.itc-deliverability-blacklist-ips {
+  color: var(--itc-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.itc-deliverability-blacklist-ips span {
+  color: var(--itc-dark);
+  font-weight: 600;
+}
+
 .itc-deliverability-locked-kicker {
   margin: 0;
   color: var(--itc-accent);
