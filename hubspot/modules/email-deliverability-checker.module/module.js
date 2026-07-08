@@ -276,73 +276,10 @@
     ].join('');
   }
 
-  function renderCrossRecordValidations(validations) {
-    if (!validations || !validations.length) return '';
-
-    return [
-      '<section class="itc-deliverability-section">',
-      renderSectionHeader('Cross-record validation', 'How these records work together.'),
-      '<div class="itc-deliverability-findings-grid">',
-      validations.map(renderFindingCard).join(''),
-      '</div>',
-      '</section>'
-    ].join('');
-  }
-
-  function renderBlacklistCard(blacklist) {
-    var checks = blacklist && blacklist.checks ? blacklist.checks : [];
-    var listedCount = checks.filter(function (check) { return check.listed; }).length;
-    var hasChecks = checks.length > 0;
-    var summary = !hasChecks
-      ? 'Blacklist checks are not available for this result yet.'
-      : listedCount
-        ? 'Found on ' + listedCount + ' of ' + checks.length + ' blacklist' + (checks.length === 1 ? '' : 's') + ' checked'
-        : 'Not found on any of ' + checks.length + ' blacklist' + (checks.length === 1 ? '' : 's') + ' checked';
-    var checkedIps = (blacklist.checked_ipv4_addresses || []).join(', ');
-
-    return [
-      '<article class="itc-deliverability-simple-card itc-deliverability-blacklist-card" data-listed="' + (listedCount ? 'true' : 'false') + '" data-empty="' + (!hasChecks ? 'true' : 'false') + '">',
-      '<div class="itc-deliverability-card-head">',
-      '<h3>Blacklist status</h3>',
-      createBadge(!hasChecks ? 'Unavailable' : listedCount ? 'Listed' : 'Clear', !hasChecks ? '#b86b00' : listedCount ? '#b86b00' : '#1c8b4b'),
-      '</div>',
-      '<div class="itc-deliverability-record">' + escapeHtml(summary) + '</div>',
-      (hasChecks ? [
-      '<div class="itc-deliverability-list-section">',
-      '<h4>Checked services</h4>',
-      '<ul class="itc-deliverability-blacklist-list">',
-      checks.map(function (check) {
-        return '<li class="itc-deliverability-blacklist-item"><span class="itc-deliverability-blacklist-item-icon" aria-hidden="true">' + (check.listed ? '!' : 'OK') + '</span><span>' + escapeHtml(check.label) + '</span></li>';
-      }).join(''),
-      '</ul>',
-      '</div>'].join('') : ''),
-      '<div class="itc-deliverability-blacklist-ips"><span>Checked IPs:</span> ' + escapeHtml(checkedIps || 'None') + '</div>',
-      '</article>'
-    ].join('');
-  }
-
-  function renderBimiCard(bimi) {
-    var tone = statusTone(Boolean(bimi.valid), Boolean(bimi.record));
-
-    return [
-      '<article class="itc-deliverability-simple-card">',
-      '<div class="itc-deliverability-card-head">',
-      '<h3>BIMI</h3>',
-      createBadge(tone.label, tone.color),
-      '</div>',
-      '<div class="itc-deliverability-record">' + escapeHtml(bimi.record || 'No BIMI record found at the default selector.') + '</div>',
-      renderListSection('Record tags', Object.keys(bimi.tags || {}).map(function (key) {
-        return key + '=' + bimi.tags[key];
-      })),
-      '</article>'
-    ].join('');
-  }
-
   function renderResults(result, contactUrl) {
     return [
       '<div class="itc-deliverability-results-meta">Results for <strong>' + escapeHtml(result.domain || '') + '</strong></div>',
       renderFindings(result.findings),
-      renderCrossRecordValidations(result.cross_record_validations),
       '<section class="itc-deliverability-section">',
       renderSectionHeader('Authentication checks', 'SPF, DKIM and DMARC at a glance.'),
       '<div class="itc-deliverability-auth-columns">',
@@ -372,10 +309,6 @@
       '<section class="itc-deliverability-footer-grid">',
       '<article class="itc-deliverability-simple-card"><h3>Nameservers</h3><pre>' + escapeHtml((result.nameservers.values || []).join('\n') || 'No nameservers returned.') + '</pre></article>',
       '<article class="itc-deliverability-simple-card"><h3>MX</h3><pre>' + escapeHtml((result.mx.values || []).join('\n') || 'No MX records returned.') + '</pre></article>',
-      '</section>',
-      '<section class="itc-deliverability-footer-grid">',
-      renderBimiCard(result.bimi || {}),
-      renderBlacklistCard(result.blacklist || {}),
       '</section>'
     ].filter(Boolean).join('');
   }
